@@ -66,14 +66,9 @@ datos %>% group_by(FECHA) %>% summarise(n = n()) %>% arrange(FECHA) %>% filter(y
   ggplot()+geom_line(aes(FECHA, n))
 ```
 
-```{r}
-ss
-```
 
-```{r}
 
-```
 
-# holi
+
 
 
