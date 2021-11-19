@@ -27,9 +27,10 @@ datos <- datos %>% mutate(DISEÑO = ifelse(DISEÑO=="","Otro",DISEÑO),
 datos <- datos %>%  mutate(LONGITUD = format(as.numeric(str_extract(LOCATION, "-75[.][0-9]+")),digits=15),
                 LATITUD = format(str_extract(LOCATION, "6[.][0-9]+"),digits=15))
 names(datos)
-
+apply(is.na(datos), 2, sum)
 datos <- datos %>% select(CLASE_ACCIDENTE, DIRECCION, DISEÑO, FATALIDAD, 
-                          NUMCOMUNA, COMUNA, BARRIO, LONGITUD,LATITUD, FECHA_ACCIDENTE)
-
+                          NUMCOMUNA, COMUNA, BARRIO, LONGITUD,LATITUD, FECHA_ACCIDENTES)
+apply(is.na(datos), 2, sum)
+datos %>% group_by(BARRIO) %>% summarise(n = n()) %>% arrange(-n)
 require(openxlsx)
 write.xlsx(datos, file = "../datos/datos_listos.xlsx")
