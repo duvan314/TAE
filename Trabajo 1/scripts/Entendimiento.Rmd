@@ -68,6 +68,11 @@ datos %>% group_by(FECHA) %>% summarise(n = n()) %>% arrange(FECHA) %>% filter(y
 
 
 
+```{r}
+summary(datos)
+```
+
+
 
 
 
