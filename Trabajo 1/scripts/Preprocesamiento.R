@@ -101,6 +101,7 @@ rm(barrio, datos_barrios, datos2, DF, barrios, BARRIO)
 datos <- datos %>% select(-barrio)
 
 
+
 # A trabajar con los barrios  ---------------------------------------------
 
 data.frame(table(datos$BARRIO))
