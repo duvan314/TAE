@@ -17,60 +17,7 @@ library(lubridate)
 ```
 
 
-## datos
 
-```{r}
-datos <- read_excel("../datos/datos_listos.xlsx")
-datos <- datos %>% mutate(FECHA = ymd(substr(datos$FECHA_ACCIDENTES, star=1, stop=10)))
-datos <- datos %>% mutate(HORA = hm(substr(datos$FECHA_ACCIDENTES, start = 12, stop = 16)))
-head(datos)
-```
-
-
-
-```{r}
-apply(is.na(datos), 2, sum)
-```
-
-
-```{r fig.height=8, fig.width=12}
-
-b <- datos %>% filter(is.na(BARRIO))
-b %>% nrow()
-
-datos %>% filter(year(FECHA)>2017) -> dd 
-b %>% group_by(LATITUD, LONGITUD) %>% summarise(n=n()) %>% nrow()
-ggplot(dd, aes(LATITUD, LONGITUD, color = BARRIO)) + 
-  geom_jitter()+
-  geom_jitter( data = b, color = "black")+theme(legend.position = "none")+
-  theme(axis.text.x=element_blank())+theme(axis.text.y=element_blank())
-
-```
-
-
-
-
-
-
-
-
-
-```{r}
-datos %>% group_by(BARRIO) %>% summarise(n = n()) %>% arrange(BARRIO) %>% View()
-```
-
-
-
-```{r}
-datos %>% group_by(FECHA) %>% summarise(n = n()) %>% arrange(FECHA) %>% filter(year(FECHA)==2020)%>% 
-  ggplot()+geom_line(aes(FECHA, n))
-```
-
-
-
-```{r}
-summary(datos)
-```
 
 
 
