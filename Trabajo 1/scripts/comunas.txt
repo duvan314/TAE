@@ -1,0 +1,253 @@
+101 - Santo Domingo Savio N°.1 1,763 4,667 4 6,434
+102 - Santo Domingo Savio N°.2 1,905 389 1 1 2,296
+103 - Popular 1,183 5,427 6 6,616
+104 - Granizal 421 2,721 4 3,146
+105 - Moscú N°.2 618 3,318 3 1 3,940
+106 - Villa Guadalupe 583 2,647 11 3,241
+107 - San Pablo 830 2,137 2,967
+108 - El Compromiso 968 11 979
+109 - Aldea Pablo VI 689 4 693
+110 - La Esperanza N°.2 850 77 1 928
+111 - La Avanzada 1,771 22 1 1,794
+112 - Carpinelo 2,667 17 2 2,686
+201 - La Isla 558 3,058 2 3,618
+202 - Playón de los Comuneros 1,156 1,786 2 2,944
+203 - Pablo VI 9 1,309 1 1,319
+204 - La Frontera 301 1,274 1 2 1,578
+205 - La Francia 500 3,635 1 1 4,137
+206 - Andalucía 207 2,422 1 2,630
+207 - Villa Del Socorro 358 3,279 3 3,640
+208 - Villa Niza 203 1,656 1,859
+209 - Moscú N°.1 298 2,415 5 2,718
+210 - Santa Cruz 179 3,402 1 3,582
+211 - La Rosa 496 1,525 3 2,024
+301 - La Salle 162 4,139 6 1 4,308
+302 - Las Granjas 1,074 6,702 12 3 7,791
+303 - Campo Valdés N°.2 12 1,541 2,959 4,512
+304 - Santa Inés 982 2,948 8 1 3,939
+305 - El Raizal 590 2,661 2 1 3,254
+306 - El Pomar 4 327 632 1 964
+307 - Manrique Central N°.2 4 132 1,159 2 1,297
+308 - Manrique Oriental 47 2,869 545 1 3,462
+309 - Versalles N°.1 1,085 3,546 2 4,633
+310 - Versalles N°.2 1,957 30 1,987
+311 - La Cruz 2,466 16 1 2,483
+312 - Oriente 1,351 13 2 1 1,367
+313 - Maria Cano - Carambolas 1,693 3 1,696
+314 - San José La Cima N°.1 694 140 834
+315 - San José La Cima N°.2 488 20 508
+401 - Berlín 126 539 1,761 2 2,428
+402 - San Isidro 214 1,197 2,480 3,891
+403 - Palermo 545 1,515 8 2,068
+404 - Bermejal - Los Alamos 297 1,829 8 7 2,141
+405 - Moravia 2,931 5,085 10 2 8,028
+407 - Sevilla 4 8 551 11 574
+408 - San Pedro 17 844 570 7 1,438
+409 - Manrique Central N°.1
+410 - Campo Valdés N°.1 7 119 3,157 3 3,286
+411 - Las Esmeraldas 42 503 985 1,530
+412 - La Piñuela 33 452 1,370 1 1,856
+413 - Aranjuez 3 281 1,704 1,988
+414 - Brasilia 10 520 2,479 3,009
+415 - Miranda 12 1,810 53 1 1,876
+501 - Toscana 114 1,055 656 1,825
+502 - Las Brisas 5 6 1,657 2 1,670
+503 - Florencia 1 122 2,281 2,404
+504 - Tejelo 50 51 2,671 2,772
+505 - Boyacá 2 3 1,275 1,280
+507 - Héctor Abad Gómez 181 959 222 1,362
+508 - Belalcázar 10 750 572 1,332
+509 - Girardot 8 317 2,452 2 2,779
+510 - Tricentenario 9 37 1,405 1 1,452
+511 - Castilla 12 352 5,414 1 5,779
+513 - Francisco Antonio Zea 11 979 1,645 2,635
+514 - Alfonso López 28 782 2,064 1 2,875
+517 - Caribe 1 1 196 4 202
+519 - Progreso 5 5 527 46 583
+601 - Santander 35 4,093 7 4,135
+602 - Doce de Octubre N°.1 104 4,194 6 2 4,306
+603 - Doce de Octubre N°.2 40 4,005 40 3 4,088
+604 - Pedregal 1 570 4,502 5,073
+605 - La Esperanza 14 891 4,655 1 5,561
+606 - San Martín de Porres 44 3,277 1,073 2 4,396
+607 - Kennedy 78 7,596 87 1 7,762
+608 - Picacho 2,466 1,809 35 1 4,311
+609 - Picachito 1,413 129 3 1,545
+610 - Mirador Del Doce 1,049 109 1,158
+611 - Progreso N°.2 1,369 110 2 1,481
+612 - El Triunfo 1,117 72 1,189
+702 - Cerro El Volador 5 230 68 1 304
+703 - San Germán 5 260 393 34 692
+705 - Facultad de Minas U. Nacional 1 22 1 1 25
+706 - La Pilarica 2 20 39 26 11 98
+707 - Bosques de San Pablo 3 26 40 3 72
+708 - Altamira 2 2 725 13 742
+709 - Córdoba 450 772 945 2,167
+710 - López de Mesa 1 17 956 974
+711 - El Diamante 32 3,687 487 17 4,223
+712 - Aures N°.2 236 5,275 268 2 5,781
+713 - Aures N°.1 57 5,647 178 1 5,883
+714 - Bello Horizonte 6 1,957 159 2 2,124
+715 - Villa Flora 6 1,208 183 9 1,406
+716 - Palenque
+717 - Robledo 60 495 743 12 1,310
+718 - Cucaracho 167 615 1,585 3 2,370
+719 - Fuente Clara 371 529 4 904
+720 - Santa Margarita 797 1,383 2 2 2,184
+722 - Olaya Herrera 2,712 14 1 2,727
+723 - Pajarito 10 125 563 1 1 700
+724 - Monteclaro 103 5 515 623
+725 - Nueva Villa de La Iguaná 1,113 105 2 1 1,221
+801 - Villa Hermosa 9 246 2,136 1 1 2,393
+802 - La Mansión 6 229 1,442 6 1,683
+803 - San Miguel 1 163 977 286 1,427
+804 - La Ladera 42 382 236 660
+805 - Batallón Girardot 44 14 39 97
+806 - Llanaditas 3,072 26 12 3,110
+807 - Los Mangos 1,250 3,691 23 3 4,967
+808 - Enciso 34 1,378 1,677 3,089
+809 - Sucre 15 340 1,007 1,362
+810 - El Pinal 444 4,140 12 1 4,597
+811 - Trece de Noviembre 2,656 23 4 2,683
+812 - La Libertad 1,230 1,442 1 2,673
+813 - Villatina 1,751 2,249 4,000
+814 - San Antonio 1,328 105 1 1,434
+815 - Las Estancias 1,479 1,451 1 2,931
+816 - Villa Turbay 1,107 8 1 1,116
+817 - La Sierra 898 8 906
+819 - Villa Lilliam 651 1,088 1 1,740
+901 - Juan Pablo II 465 260 7 732
+902 - Barrios de Jesús 394 1,724 226 2,344
+903 - Bomboná N°.2 12 2,412 1,062 22 3,508
+904 - Los Cerros El Vergel 5 680 1,263 10 1,958
+905 - Alejandro Echavarría 31 194 1,611 1 1,837
+906 - Barrio Caycedo 4 222 1,123 1 1,350
+907 - Buenos Aires 6 10 1,656 5 1,677
+908 - Miraflores 3 13 990 70 1,076
+909 - Cataluña 7 59 2,077 2,143
+910 - La Milagrosa 2 48 1,273 1 1,324
+911 - Gerona 3 99 1,908 2,010
+912 - El Salvador 11 678 2,842 3,531
+913 - Loreto 54 4,205 2,221 17 6,497
+914 - Asomadera N°.1 140 867 94 28 4 1,133
+915 - Asomadera N°.2 1 3 1 5
+917 - Ocho de Marzo 489 97 2 588
+1001 - Prado 3 5 307 447 762
+1003 - Jesús Nazareno 12 709 19 740
+1004 - El Chagualo 5 5 1,121 5 1,136
+1005 - Estación Villa
+1006 - San Benito 2 30 403 22 457
+1007 - Guayaquil 2 5 53 34 94
+1008 - Corazón de Jesús 2 17 19
+1011 - Calle Nueva 5 3 22 30
+1012 - Perpetuo Socorro 1 1 1 3
+1013 - Barrio Colón 17 395 630 26 1,068
+1014 - Las Palmas 22 1,364 1,013 8 2,407
+1015 - Bomboná N°.1 1 10 678 173 862
+1016 - Boston 2 54 437 401 894
+1017 - Los Ángeles 11 277 156 444
+1018 - Villa Nueva 3 5 101 420 529
+1019 - La Candelaria 5 87 89 181
+1020 - San Diego 7 915 101 4 8 1,035
+1101 - Carlos E. Restrepo 4 55 59
+1102 - Suramericana 1 18 24 43
+1103 - Naranjal 48 106 25 7 186
+1104 - San Joaquín 71 197 268
+1105 - Los Conquistadores 1 5 43 49
+1107 - Bolivariana 1 69 36 106
+1108 - Laureles 1 10 71 82
+1109 - Las Acacias 8 42 50
+1110 - La Castellana 1 2 16 61 80
+1111 - Lorena 5 92 44 141
+1112 - El Velódromo 1 78 31 110
+1113 - Estadio 2 1 5 65 73
+1114 - Los Colores 1 206 94 301
+1115 - Cuarta Brigada 7 8 67 6 88
+1117 - Florida Nueva 1 6 134 37 178
+1201 - Ferrini 13 52 58 48 10 181
+1202 - Calasanz 2 1 10 52 65
+1203 - Los Pinos 1 2 110 2 115
+1204 - La América 1 5 316 150 1 473
+1205 - La Floresta 1 414 144 9 568
+1206 - Santa Lucía 1 1,257 18 1 1,277
+1207 - El Danubio 3 330 84 417
+1208 - Campo Alegre 1 14 287 85 387
+1209 - Santa Mónica 1 28 209 238
+1210 - Barrio Cristóbal 1 780 34 2 817
+1211 - Simon Bolivar 1 8 63 72
+1212 - Santa Teresita 2 2 12 17 84 117
+1213 - Calasanz Parte Alta 3 524 486 45 19 1,077
+1301 - El Pesebre 2,178 576 120 4 2,878
+1302 - Blanquizal 1,081 784 4 1 1,870
+1303 - Santa Rosa de Lima 16 645 19 15 1 696
+1304 - Los Alcázares 12 37 1,141 144 1 1,335
+1305 - Metropolitano
+1306 - La Pradera 72 1,172 2,023 6 3,273
+1307 - Juan XXIII La Quiebra 1,942 1,393 6 3,341
+1308 - San Javier N°.2 2 39 474 113 628
+1309 - San Javier N°.1 1 33 781 1 816
+1310 - Veinte de Julio 364 2,551 162 3 3,080
+1311 - Belencito 7 137 277 75 496
+1312 - Betania 131 1,806 125 2,062
+1313 - El Corazón 74 1,295 5 1,374
+1314 - Las Independencias 4,344 161 2 4,507
+1315 - Nuevos Conquistadores 2,982 45 1 1 3,029
+1316 - El Salado 2,446 447 258 3,151
+1317 - Eduardo Santos 148 546 286 980
+1318 - Antonio Nariño 729 3,018 187 3,934
+1319 - El Socorro 39 1,382 120 1 1,542
+1401 - Barrio Colombia 2 21 23
+1403 - Villa Carlota 1 12 11 24
+1404 - Castropol 1 9 11 21
+1405 - Lalinde 2 1 3
+1406 - Las Lomas No.1 3 8 11
+1407 - Las Lomas No.2 1 1 3 5
+1408 - Altos de El Poblado 3 2 2 7
+1409 - El Tesoro 3 133 39 3 8 186
+1410 - Los Naranjos 6 135 181 2 1 8 333
+1411 - Los Balsos N°.1 2 126 4 1 4 9 146
+1412 - San Lucas 8 10 74 1 1 6 100
+1413 - El Diamante No.2 1 14 15
+1414 - El Castillo 1 2 3
+1415 - Los Balsos N°.2 4 2 9 15
+1416 - Alejandría 140 72 1 1 8 222
+1417 - La Florida 1 48 2 2 15 68
+1418 - El Poblado 1 5 2 1 9
+1419 - Manila 13 47 6 66
+1421 - Patio Bonito 1 2 5 2 10
+1420 - Astorga 1 6 11 18
+1422 - La Aguacatala 1 6 7
+1423 - Santa Maria de los Angeles 1 6 13 20
+1502 - Tenche 10 5 2 17
+1503 - Trinidad 156 143 2,760 19 3,078
+1504 - Santa Fe 3 11 254 268
+1507 - Campo Amor 4 9 540 119 672
+1509 - Cristo Rey 7 18 2,483 26 2,534
+1510 - Guayabal 3 260 30 293
+1511 - La Colina 22 3,175 1,738 2 4,937
+1601 - Fátima 1 4 418 77 6 506
+1602 - Rosales 2 10 28 40 80
+1603 - Belén
+1604 - Granada 2 3 388 28 421
+1605 - San Bernardo 11 10 4,010 25 4,056
+1606 - Las Playas 5 8 2,075 11 2,099
+1607 - Diego Echavarría 1 245 12 8 266
+1608 - La Mota 191 122 28 20 361
+1609 - La Hondonada 169 147 814 40 1 1,171
+1610 - El Rincón 869 3,847 1,245 4 3 5,968
+1611 - La Loma de los Bernal 2 187 7 44 28 268
+1612 - La Gloria 4 23 529 159 6 721
+1613 - Altavista 47 3,057 797 14 3,915
+1614 - La Palma 13 93 42 12 160
+1615 - Los Alpes 3 34 990 11 1,038
+1616 - Las Violetas 86 3,203 265 3 3,557
+1617 - Las Mercedes 11 192 1,574 6 7 1,790
+1618 - Nueva Villa del Aburrá 7 49 2 7 65
+1619 - Miravalle 1 1 3 78 11 94
+1620 - El Nogal-Los Almendros 1 2 15 8 26
+1621 - Cerro Nutibara 3 1 4
+5000 - San Sebastián de Palmitas 523 637 31 1 1,192
+6000 - San Cristóbal 2,910 13,367 2,523 18 2 18,820
+7000 - Altavista 994 5,556 64 3 6,617
+8000 - San Antonio de Prado 901 15,293 5,184 27 5 21,410
+9000 - Santa Elena
