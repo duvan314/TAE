@@ -17,6 +17,74 @@ library(lubridate)
 ```
 
 
+```{r}
+setwd("C:/Users/DUVAN/OneDrive/1 U/2021-2/TAE/Trabajo 1/scripts")
+```
+
+```{r}
+datos <- read.csv("../datos/datos_listos.csv")
+datos %>% filter(CLASE_ACCIDENTE != "Incendio") -> datos 
+```
+
+```{r}
+datos <- datos %>% select(CLASE_ACCIDENTE, GRAVEDAD, DISEÑO, COMUNA, BARRIO, LATITUD, LONGITUD, FECHA_ACCIDENTES)
+```
+
+
+```{r}
+FECHA_ACCIDENTE <- ymd(substr(datos$FECHA_ACCIDENTES, 1,10))
+x <- wday(FECHA_ACCIDENTES)
+DIA <- ifelse(x == 1, "Dom",
+              ifelse(x == 2, "Lun",
+                     ifelse(x == 3, "Mar",
+                            ifelse(x == 4, "Mie",
+                                   ifelse(x == 5, "Jue",
+                                          ifelse(x == 6, "Vie","Sab"))))))
+MES <- month(FECHA_ACCIDENTES)
+AÑO <- year(FECHA_ACCIDENTES)
+hora <- hm(substr(datos$FECHA_ACCIDENTES, 12,16))
+HORA  <- round(hour(hora)+minute(hora)/60, 3)
+DIA_MES <- mday(FECHA_ACCIDENTES)
+datos <- datos %>% mutate(FECHA_ACCIDENTE, AÑO, MES,DIA_MES, DIA, HORA)
+
+```
+
+```{r}
+entreno <- datos %>% filter(AÑO<=2017)
+prueba <- datos %>% filter(AÑO>2017 & AÑO < 2020)
+```
+
+
+```{r}
+entreno <- entreno %>% group_by(CLASE_ACCIDENTE, FECHA_ACCIDENTE) %>% 
+  summarise(n = n())
+
+
+entreno %>% filter(CLASE_ACCIDENTE=="Volcamiento") %>%  ggplot() + geom_line(aes(FECHA_ACCIDENTE, n, color =CLASE_ACCIDENTE))
+```
+
+
+```{r}
+entreno %>% group_by(year(FECHA_ACCIDENTE), month(FECHA_ACCIDENTE)) %>% summarise(n=n()) -> atropello
+atropello <- atropello$n
+atropello <- ts(atropello, frequency=12, start=c(2014, 7))
+```
+
+
+```{r}
+y  <- decompose(atropello,type="additive")
+plot(atropello)
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
