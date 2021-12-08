@@ -1,11 +1,13 @@
 # bORRAR mEMORIA ----------------------------------------------------------
 rm(list = ls())
 # librerias ---------------------------------------------------------------
-setwd("C:/Users/DUVAN/OneDrive/1 U/2021-2/TAE/Trabajo 1/scripts")
+#setwd("C:/Users/DUVAN/OneDrive/1 U/2021-2/TAE/Trabajo 1/scripts")
 library(tidyverse); library(lubridate); library(readxl)
 
 # datos -------------------------------------------------------------------
 datos <- read_excel("../datos/incidentes_viales.xlsx")
+
+apply(is.na(datos),2,sum)
 
 # CLASE ACCIDENTE ---------------------------------------------------------
 datos %>% group_by(CLASE_ACCIDENTE) %>% summarise(n = n())
@@ -238,38 +240,75 @@ data.frame(table(datos$BARRIO)) %>% nrow()   # 271 barrios
 # Filtrar barrios con BA --------------------------------------------------
 
 datos %>% filter(!is.na(datos$BARRIO))-> datos
-
+str(datos)
 # escribir datos ----------------------------------------------------------
 
+
+# fevchas} ----------------------------------------------------------------
+
+library(readxl)
+library(tidyverse)
+library(lubridate)
+library(caret)
+library(fastDummies)
+require(randomForest)
+library(ridge)
+library(ranger)
+library(psych)
+library(glmnet)
+library(rpart)
+require(randomForest)
+
+
+# datos -------------------------------------------------------------------
+table(datos$CLASE_ACCIDENTE)
+datos %>% filter( BARRIO!="") %>%
+  mutate(CLASE_ACCIDENTE = ifelse(CLASE_ACCIDENTE=="Volcamiento", "Otro", CLASE_ACCIDENTE),
+         CLASE_ACCIDENTE = ifelse(CLASE_ACCIDENTE=="Incendio", "Otro", CLASE_ACCIDENTE))-> datos 
+
+
+100*sort(prop.table(table(datos$DISEÑO)))
+diseño <- c("Pontón","Tunel","Via peatonal", "Paso a Nivel", "Paso Inferior")
+
+datos <-datos %>% mutate(DISEÑO = ifelse(DISEÑO %in% diseño, "Otro", DISEÑO))
+100*sort(prop.table(table(datos$DISEÑO)))
+datos <- datos %>%select(CLASE_ACCIDENTE, GRAVEDAD,
+                         DISEÑO, COMUNA, BARRIO, LATITUD,
+                         LONGITUD, FECHA_ACCIDENTES) %>%
+  mutate(CLASE_ACCIDENTE = factor(CLASE_ACCIDENTE, 
+                                  levels=c("Atropello",
+                                           "Caída Ocupante", 
+                                           "Choque", "Otro")))
+
+# fechas ------------------------------------------------------------------
+
+FECHA_ACCIDENTE <- ymd(substr(datos$FECHA_ACCIDENTES, 1,10))  # 241534 
+x <- wday(FECHA_ACCIDENTE)
+DIA <- ifelse(x == 1, "Dom",
+              ifelse(x == 2, "Lun",
+                     ifelse(x == 3, "Mar",
+                            ifelse(x == 4, "Mie",
+                                   ifelse(x == 5, "Jue",
+                                          ifelse(x == 6, "Vie","Sab"))))))
+MES <- as.factor(month(FECHA_ACCIDENTE))
+AÑO <- year(FECHA_ACCIDENTE)
+hora <- hm(substr(datos$FECHA_ACCIDENTES, 12,16))
+HORA  <- round(hour(hora)+minute(hora)/60, 3)
+DIA_MES <- mday(FECHA_ACCIDENTE)
+SEMANA <- week(FECHA_ACCIDENTE)
+DIA_AÑO <- yday(FECHA_ACCIDENTE)
+datos <- datos %>% mutate(FECHA_ACCIDENTE, AÑO, MES,DIA_MES,SEMANA, DIA,DIA_AÑO, HORA)
+str(datos)
+
+
+# fechas especiales -------------------------------------------------------
+
+# -------------------------------------------------------------------------
+
+table(datos$CLASE_ACCIDENTE)
+
+datos %>% filter( BARRIO!="") %>% filter(!is.na(COMUNA)) -> datos 
+apply(is.na(datos),2,sum)
+
 write.csv(datos, file = "../datos/datos_listos.csv")
-
-
-
-# mas sobre los barrios: NA -----------------------------------------------
-
-data.frame(table(datos$BARRIO)) -> barrios
-datos %>% 
-  mutate(BARRIO = ifelse(COMUNA=="El Poblado"& is.na(BARRIO),"Santa María de los Ángeles",BARRIO),
-         COMUNA = ifelse(COMUNA=="El Poblado"& BARRIO == "sANTA fé","Guayabal",COMUNA))->datos 
-
-
-datos %>% 
-  filter(is.na(BARRIO)) %>% group_by(COMUNA) %>% 
-  summarise(n=n())
-
-
-datos %>% 
-  filter(COMUNA=="Guayabal") %>% filter(is.na(BARRIO)) %>% group_by(LATITUD, LONGITUD) %>% 
-  summarise(n=n())
-
-
-
-
-datos %>% 
-  filter(COMUNA=="Guayabal") %>% 
-  mutate(i = ifelse(is.na(BARRIO), 2, 0.5)) %>% 
-  ggplot()+
-  geom_jitter(aes(LATITUD, LONGITUD, color = BARRIO, size = i))
-
-
 
