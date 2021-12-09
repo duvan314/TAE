@@ -1,8 +1,6 @@
 rm(list = ls())
 library(tidyverse)
 source("../scripts/Datos_Mod_diarios.R", encoding = "UTF-8")
-
-
 # predicciones ------------------------------------------------------------
 
 
@@ -92,7 +90,6 @@ plot_prediccion <- function(clase_acc, temporalid, t_min, t_max){
   
   t_min <- ymd(t_min)
   t_max <- ymd(t_max)
-  
   
   
   if(t_min > t_max){
