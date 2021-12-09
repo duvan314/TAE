@@ -23,7 +23,7 @@ predicciones <- function(clase_acc, temporalid){
   
   
 
-datos_test <- datos_diarios("Otro") %>% filter(AÑO %in% c(2018,2019))
+datos_test <- datos_diarios(clase_acc) %>% filter(AÑO %in% c(2018,2019))
 
 
 if (temporalid == "diaria") {
@@ -139,10 +139,10 @@ plot_prediccion <- function(clase_acc, temporalid, t_min, t_max){
 
 
 
-clase_acc <-  "Choque"   # c( "Atropello", "Caída Ocupante", "Choque", "Otro" )
-temporalid <- "mensual"  # c("diaria", "semanal", "mensual", "anual")
+clase_acc <-  "Atropello"   # c( "Atropello", "Caída Ocupante", "Choque", "Otro" )
+temporalid <- "semanal"  # c("diaria", "semanal", "mensual", "anual")
 t_min <- "2018-02-01"    # año-mes-dia
-t_max <- "2018-12-01"    # año-mes-dia
+t_max <- "2019-12-01"    # año-mes-dia
 
 plot <- plot_prediccion(clase_acc,temporalid,t_min,t_max)
 plot
