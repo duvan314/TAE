@@ -98,3 +98,24 @@ ECM_Atropello_diarios <- data.frame(ridge, lasso, poisson, rp)# modelo ganador, 
 
 
 ECM_Atropello_diarios   # modelo ganardor, rp
+
+
+
+
+poisson_mod <- function(train){
+  poisson <- train(CASOS ~., data = train, method = "glm", family = "poisson")
+  
+  return(poisson)
+}
+
+
+
+poisson_model_diarios <-poisson_mod(datos_train)
+
+
+saveRDS(poisson_model_diarios,"../Modelos diarios/posson_caidaOcupante.rds")
+
+
+
+
+

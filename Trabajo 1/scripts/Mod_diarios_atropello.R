@@ -94,6 +94,36 @@ ECM_rf_2020 <-mean((predict(diarios_rp, newdata = datos_2020)-datos_2020$CASOS)^
 rp <- c(ECM_rf_train, ECM_rf_test, ECM_rf_2020)
 
 ECM_Atropello_diarios <- data.frame(ridge, lasso, poisson, rp)# modelo ganador, poisson. 
-  ECM_Atropello_diarios
+
+
+
+
+mod_poisson_diarios  <- glm(CASOS ~ ., data = datos_train, family = poisson(link = "log"))
+
+poisson_model <- function(train){
+  poisson <- train(CASOS ~., data = train, method = "glm", family = "poisson")
+
+  return(poisson)
+}
+
+
+
+ridge_model_diarios <-poisson_model(datos_train)
+
+saveRDS(ridge_model_diarios,"../Modelos diarios/posson_model_atropello.rds")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   

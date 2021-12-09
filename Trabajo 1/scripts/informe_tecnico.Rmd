@@ -152,6 +152,23 @@ Los datos de entrenamiento para los modelos predictivos fueron con registro de l
 
 **Modelos Predictivos**
 
+```{r}
+library(pROC)
+library(caret)
+
+?train()
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -100,3 +100,28 @@ ECM_Atropello_diarios <- data.frame(ridge, lasso, poisson, rp)# modelo ganador, 
 ECM_Atropello_diarios   # modelo ganardor, Ridge
 
 
+
+## gyuardar el modelo 
+
+
+ridge_mod <- function(train){
+  cv_ridge<-cv.glmnet(x_train, y_train,alpha=0)    # cross validaton para escoger el lambda 
+  best_lambda_ridge <- cv_ridge$lambda.min
+  ridge<-train(CASOS ~ .,
+               data = train,
+               method = 'glmnet', 
+               tuneGrid = expand.grid(alpha = 0, lambda = best_lambda_ridge),
+               metric =  "Rsquared"
+  )
+  return(ridge)
+}
+
+ridge_model_diarios <-ridge_mod(datos_train)
+saveRDS(ridge_model_diarios,"../Modelos diarios/ridge_model_choque.rds")
+
+
+
+
+
+
+
