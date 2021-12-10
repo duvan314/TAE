@@ -136,13 +136,13 @@ plot_prediccion <- function(clase_acc, temporalid, t_min, t_max){
 
 
 
-clase_acc <-  "Atropello"   # c( "Atropello", "Caída Ocupante", "Choque", "Otro" )
-temporalid <- "semanal"  # c("diaria", "semanal", "mensual", "anual")
-t_min <- "2018-02-01"    # año-mes-dia
-t_max <- "2019-12-01"    # año-mes-dia
+#clase_acc <-  "Atropello"   # c( "Atropello", "Caída Ocupante", "Choque", "Otro" )
+#temporalid <- "semanal"  # c("diaria", "semanal", "mensual", "anual")
+#t_min <- "2018-02-01"    # año-mes-dia
+#t_max <- "2019-12-01"    # año-mes-dia
 
-plot <- plot_prediccion(clase_acc,temporalid,t_min,t_max)
-plot
+#plot <- plot_prediccion(clase_acc,temporalid,t_min,t_max)
+#plot
 
 
 

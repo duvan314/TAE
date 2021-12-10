@@ -183,16 +183,6 @@ grupos:
 
 
 
-```{r}
-
-
-
-barrios_med %>% inner_join(datos_agrupados,by = c("FECHA_ACCIDENTE" = "BARRIO") )
-
-
-```
-
-
 # mapa 
 
 
@@ -220,15 +210,16 @@ left_join(datos_agrupados,barrios_mapa, by = c("BARRIO" = "BARRIO") ) %>%
                             ifelse(grupo == 2,"orange",
                                    ifelse(grupo == 3, "yellow", 
                                             "green"))))-> caracteristicas
-
-
-write.csv(caracteristicas, "../datos/caracteristicas_barrios.csv")
-
-
-
-
-
 ```
+```{r}
+write.csv(caracteristicas, "../datos/caracteristicas_barrios.csv", row.names = FALSE)
+```
+
+
+```{r}
+barrios_med %>% inner_join(datos_agrupados,by = c("FECHA_ACCIDENTE" = "BARRIO") )
+```
+
 
 
 
