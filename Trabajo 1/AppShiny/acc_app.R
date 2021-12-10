@@ -3,147 +3,111 @@ library(tidyr)
 library(rlang)
 library(dplyr)
 library(caret)
-source("Modelo.R")
+library(sf)
+library(leaflet)
 
-if (FALSE) {
-  # Start app in the current working directory
-  runApp()
-  
-  # Start app in a subdirectory called myapp
-  runApp("myapp")
-}
+source("Predicciones.R", encoding = "UTF-8")
+codigoBarrios <- read.csv("codigoBarrios.csv", encoding = "latin")
+barrios <- st_read("Barrio_Vereda.shp", quiet = T)
 
-## Only run this example in interactive R sessions
-if (interactive()) {
-  options(device.ask.default = FALSE)
-  
-  # Apps can be run without a server.r and ui.r file
-  runApp(list(
-    ui = fluidPage(title = "Accidentalidad en MedellÌn",
-                   # Algunos cambios en el css de algunos elementos
-         tags$head(
-           tags$style(type="text/css", "body {padding-top: 70px;}"),
-           tags$style(type="text/css","#imagen img {max-width: 100%; width: 100%; height: auto; max-height: 100%}"),
-           tags$style("#texto_hijos{
-                       font-size: 20px;
-                       font-style: bold;
-                       text-align: center;
-                       }"),
-           tags$style(HTML("hr {border-top: 1px solid #000000;}"))
-         ),
-         # Navegacion
-         navbarPage("Accidentalidad en MedellÌn", inverse = TRUE, position = "fixed-top",
-                    
-          # Tab Modelo
-          tabPanel("VisualizaciÛn",
-                   fluidRow(
-                     column(8,
-                            # Descripcion
-                            wellPanel(
-                              fluidRow(
-                                column(12,
-                                       tags$p("La siguiente es una aplicaciÛn web de un modelo de predicciÛn de la ocurrencia de incidentes viales en la ciudad de MedellÌn, 
-                                    con base en los datos publicados por la AlcaldÌa de MedellÌn en el portal MeData."),
-                                       tags$h4("Modo de uso:"),
-                                       tags$p("Para visualizar los datos, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el botÛn: Enviar datos")
-                                )
-                              ),
-                            ),
-                     ),
-                   ),
-                   wellPanel(
-                     tags$h3("SelecciÛn de Datos"),
-                     fluidRow(
-                       column(6,
-                              selectInput(inputId = "inputPeriodicidad", width = "100%",
-                                          label = "Periodicidad de la serie de tiempo", 
-                                          choices = c("Anual" ="0",
-                                                      "Mensual" = "1",
-                                                      "Diaria" = "2")),
-                       )
-                     ),
-                     fluidRow(
-                       column(6,
-                              selectInput(inputId = "inputTipoAcc", width = "100%",
-                                          label = "Tipo de Accidente", 
-                                          choices = c("Atropello" ="0",
-                                                      "CaÌda de Ocupante" = "1",
-                                                      "Choque" = "2",
-                                                      "Otro" = "3")),
-                       )
-                     ),
-                     dateInput("date1", "Fecha de inicio:", min = "2014-08-01", max = "2020-08-30", format = "yy/mm/dd"
-                     ),
-                     dateInput("date2", "Fecha de fin:", min = "2014-08-01", max = "2020-08-30", format = "yy/mm/dd"
-                     ),
-                  ),
-                   
+ui <- fluidPage(
+      title = "Accidentalidad en Medell√≠n",
+      # Algunos cambios en el css de algunos elementos
+      tags$head(
+        tags$style(type = "text/css", "body {padding-top: 70px;}"),
+        tags$style(type = "text/css", "#imagen img {max-width: 100%; width: 100%; height: auto; max-height: 100%}"),
+        tags$style("#texto_hijos{
+                                 font-size: 20px;
+                                 font-style: bold;
+                                 text-align: center;
+                                 }"),
+        tags$style(HTML("hr {border-top: 1px solid #000000;}"))
+      ),
+      # Navegacion
+      navbarPage("Accidentalidad en Medell√≠n",
+        inverse = TRUE, position = "fixed-top",
+
+        # Tab Modelo
+        tabPanel(
+          "Visualizaci√≥n",
+          fluidRow(
+            column(
+              8,
+              # Descripcion
+              wellPanel(
+                fluidRow(
+                  column(
+                    12,
+                    tags$p("La siguiente es una aplicaci√≥n web de un modelo de predicci√≥n de la ocurrencia de incidentes viales en la ciudad de Medell√≠n,
+                                                        con base en los datos publicados por la Alcald√≠a de Medell√≠n en el portal MeData."),
+                    tags$h4("Modo de uso:"),
+                    tags$p("Para visualizar los datos, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el bot√≥n: Enviar datos")
+                  )
+                ),
+              ),
+            ),
           ),
-          # Espacio de enlaces 
-          tabPanel("PredicciÛn",
-                   fluidRow(
-                     column(8,
-                            # Descripcion
-                            wellPanel(
-                              fluidRow(
-                                column(12,
-                                       tags$p("La siguiente es una aplicaciÛn web de un modelo de predicciÛn de la ocurrencia de incidentes viales en la ciudad de MedellÌn, 
-                                    con base en los datos publicados por la AlcaldÌa de MedellÌn en el portal MeData."),
-                                       tags$h4("Modo de uso:"),
-                                       tags$p("Para generar la predicciÛn de los datos deseados, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el botÛn: Enviar datos")
-                                )
-                              ),
-                            ),
-                     ),
-                   ),
-                   # Campos a rellenar
-                   wellPanel(
-                     tags$h3("CaracterÌsticas")),
-          ),
-          
-          tabPanel("Mapa",
-                   tags$h4("Enlace al reporte t√©cnico"),
-                   tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
-                   tags$h4("Enlace al video promocional"),
-                   tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
-                   tags$h4("Enlace al respositorio del proyecto"),
-                   tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
-                   hr(),
-                   # Referencia a los iconos usados con los hijos
-                   HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
-          ),
-          
-          tabPanel("Enlaces",
-                   tags$h4("Enlace al reporte tÈcnico"),
-                   tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
-                   tags$h4("Enlace al video promocional"),
-                   tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
-                   tags$h4("Enlace al respositorio del proyecto"),
-                   tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
-                   hr(),
-                   # Referencia a los iconos usados con los hijos
-                   HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
+        ),
+        # Espacio de enlaces
+        tabPanel(
+          "Predicci√≥n",
+          tags$h4("Enlace al reporte t√©cnico"),
+          tags$a(href = "https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
+          tags$h4("Enlace al video promocional"),
+          tags$a(href = "https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
+          tags$h4("Enlace al respositorio del proyecto"),
+          tags$a(href = "https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
+          hr(),
+          # Referencia a los iconos usados con los hijos
+          HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
+        ),
+        tabPanel(
+          "Mapa",
+          fluidRow(
+            column(
+              8,
+              # Descripcion
+              wellPanel(
+                fluidRow(
+                  column(
+                    12,
+                    tags$h4("Modo de uso:"),
+                    tags$p("Para visualizar la informaci√≥n de cada barrio y el grupo al que pertenece, escoja el barrio desde el men√∫ desplegable y haga clic en el bot√≥n \"Ver informaci√≥n\"."),
+                    selectInput(
+                      inputId = "codigoBarrio", width = "100%",
+                      label = "Seleccione el barrio",
+                      choices = setNames(codigoBarrios$CODIGO, codigoBarrios$BARRIO)
+                    ),
+                    tags$h3("Mapa"),
+                    textOutput("codBarrio"),
+                    leafletOutput("leaflet")
+                  )
+                )
+              )
+            )
           )
-         ),
-    ),
-  
-    server = function(input, output) {
-      output$plot <- renderPlot({ hist(runif(input$n)) })
-    }
-  ))
-  
-  
-  # Running a Shiny app object
-  app <- shinyApp(
-    ui <- fluidPage(title = "Incidentes viales en MedellÌn"
+        )
+      )
+    )
+ 
+server <- function(input, output) {
+      output$plot <- renderPlot({
+        hist(runif(input$n))
+      })
       
-    ),
-    server = function(input, output) {
-      output$plot <- renderPlot({ hist(runif(input$n)) })
+      output$codBarrio <- renderText({
+        print(paste("Codigo del barrio: ", input$codigoBarrio))
+      })
+
+      output$leaflet <- renderLeaflet({
+        barr <- barrios %>%
+          filter(CODIGO == input$codigoBarrio)
+
+        # Graficamos el mapa resultante
+        leaflet(barr) %>%
+          addTiles() %>%
+          addPolygons()
+      })
     }
-  )
-  runApp(app)
-}
-shiny::runApp
 
-
+shinyApp(ui, server)
