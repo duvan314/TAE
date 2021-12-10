@@ -1,0 +1,1060 @@
+---
+title: "Informe Técnico TAE - Predicción de Accidentabilidad"
+author: "Duvan Camilo Manrique, David Santiago Espindola, Jeison Durango, Daniela vasco, Valentina Agudelo"
+date: "26/11/2021"
+output:
+  html_document: 
+    toc: yes
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+
+
+```{r}
+rm(list = ls())
+library(tidyverse);library(lubridate);library(caret);library(fastDummies)
+require(randomForest);library(ridge);library(ranger);library(psych);library(glmnet);library(rpart);require(randomForest)
+library(kableExtra);library(readxl);library(caret);library(xgboost );library(knitr );library(psych)
+```
+
+
+## Planteamiento del problema
+
+
+La accidentalidad en Medellín es un problema actual en el cual como ciudadanos debemos buscar soluciones para disminuir los incidentes viales.El objetivo de este trabajo es predecir la accidentalidad en la ciudad de Medellín mediante modelos predictivos para pronosticar la accidentalidad por clase de accidente a nivel diario, semanal, mensiual y anual. Los datos fueron obtenidos de la base de datos **incidentes viales** del portal [MetaData](http://medata.gov.co/dataset/incidentes-viales) suministrada por la Secretaría de Movilidad de la Alcaldía de Medellín en la cual se encuentran accidentes de tránsito desde julio del 2014 hasta agosto del 2020. 
+
+Esta base de datos se descargó el 8 de noviembre del 2021 en formato CSV y tiene como fecha de actualización 6 de marzo del 2021. El total de registros de la base de datos es de 270765 contenidas 17 variables, las cuales son las siguientes: 
+
+* AÑO: Año de ocurrencia del incidente.
+
+* CBML: Código catastral que corresponde al código comuna, barrio, manzana, lote catastral de un predio.
+
+* CLASE_DE_ACCIDENTE: choque, atropello, volcamiento, caída de ocupante, incendio, u otro (que no corresponde a las anteriores 5 clasificaciones, p. ej: sumersión).
+
+* DIRECCION: Dirección donde ocurrió el incidente.
+
+* DIRECCION_ENCASILLADA: Dirección encasillada que entrega el geocodificador.
+
+* DISEÑO: Sitio de la vía donde ocurrió el accidente: Cicloruta, Glorieta, Interseccion, Lote o Predio, Paso a Nivel, Paso Elevado, Paso Inferior, Pontón, Puente, Tramo de via, Tunel, Via peatonal.
+
+* EXPEDIENTE: Consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento.
+
+* FECHA_ACCIDENTE: Fecha del accidente, proviene del IPAT - Informe Policial de accidente de Tránsito.
+
+* FECHA_ACCIDENTES: Fecha de los accidente (formato YYYY-MM-DD hh:mi:ss), proviene del IPAT - Informe Policial de accidentes de Tránsito.
+
+* GRAVEDAD_ACCIDENTE: Clasificación del IPAT - Informe Policial de Accidentes de Tránsito, sobre la gravedad del accidente, corresponde al resultado más grave presentado en el accidente. Daños materiales "Sólo daños", accidente con heridos "Herido", accidente con muertos "Muerto". No indica cantidad	true.
+
+* MES: Mes de ocurrencia del incidente vial.
+
+* NRO_RADICADO: Consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento.
+
+* NUMCOMUNA: Número de la comuna en la que ocurrio incidente vial.
+
+* COMUNA: Denominación con la cual se identifica cada Comuna o Corregimiento. 01:Popular 02:Santa Cruz 03:Manrique 04:Aranjuez 05:Castilla 06:Doce de Octubre 07:Robledo 08:Villa Hermosa 09:Buenos Aires 10:La Candelaria 11:Laureles - Estadio 12:La América 13:San Javier 14:El Poblado 15:Guayabal 16:Belén 50:San Sebastián de Palmitas 60:San Cristobal 70:Altavista 80:San Antonio de Prado 90:Santa Elena 99:Toda la Ciudad.
+
+* LOCATION: Fuente de información con la cual se realizó la geocodificación.
+
+* X: Coordenada X en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
+
+* Y: Coordenada Y en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
+
+Además para los modelos predictivos se agregarón como variable sindicadores los dias festivos y ferias. En las ferias seincluyen dias como feria de flores, festival internacional del tango, festival internacional del Jazz y festival del humor. 
+
+
+## Tratamiento de datos. 
+
+El preprocesamiento, limpieza y depuración de la base de y todo el codigo para el desarrollo de este proyecto se encuentra en el siguiente [link](https://github.com/duvan314/TAE).
+
+* **Datos faltantes por variable**
+
+```{r}
+datos <- read_excel("../datos/incidentes_viales.xlsx")
+kable(apply(is.na(datos), 2, sum),caption = "Información faltante por variable") 
+
+```
+
+
+### **Intervención a las variables**
+
+- Para mejorar la base de datos se modificaron registros que estaban escritos incorrectamente en las siguientes variables: CLASE_ACCIDENTE, DISEÑO,COMUNA, BARRIO y GRAVEDAD.
+
+- La variable FECHA_ACCIDENTES se modificó en formato año-mes-día-hora-minutos-segundos y se añadieron las variables DIA, MES, AÑO, HORA, DIA_MES, SEMANA y DIA_AÑO.
+
+- En COMUNA la información suministrada como (0, AU, IN, SN, No Georef, Sin Inf) se asignó como NA.
+
+
+
+- La variable  BARRIO se encontró que algunos aparecen con sus nombres y otros con su número, por medio de una [base](https://medellin.gov.co/irj/go/km/docs/pccdesign/SubportaldelCiudadano_2/PlandeDesarrollo_0_17/Publicaciones/Shared%20Content/sisben/03_ViviendasComunaBarrioVeredaEstrato_Certificada_17122015.pdf) de datos externa de la Alcaldía de Medellín verificada por el Departamento Nacional de Planeación se reemplazaron los números y se asignó su respectivo nombre. Para el análisis solo se tuvo en cuenta los barrios excluyendo a los corregimientos.
+
+- La variable LOCATION se separó en dos variables  LATITUD y LONGITUD. Las coordenadas 6.22141524356,-75.7037762763 de la variable LOCATION se encuentrán fuera de Medellín,  por tanto no se tuvieron en cuenta en el desarrollo del trabajo. 
+
+- En la variable CLASE_ACCIDENTE las categorías incendio y volcamiento se agregaron a la clase Otro. En consecuencia, esta variable queda con las siguientes categorias: Atropello, Caída Ocupante, Choque y Otro.
+
+
+Finalmente la base de datos limpia contiene  242533 registros y 16 variables que son: CLASE_ACCIDENTE, GRAVEDAD, DISEÑO, COMUNA, BARRIO, LATITUD, LONGITUD, FECHA_ACCIDENTES, FECHA_ACCIDENTE, AÑO, MES, DIA_MES,  SEMANA,  DIA,  DIA_AÑO y HORA. El 10.43% es el porcentaje de la información de los datos originales que no se tuvo en cuenta para la realización del trabajo.
+
+* **Estructura de la base de datos depurada**
+
+```{r}
+datos <- read.csv("../datos/datos_listos.csv")
+datos <- datos[,-1]
+str(datos)
+```
+
+
+## **Análisis descriptivo**
+
+
+```{r}
+datos[,1:10] %>% head() %>% kable(caption = "Encabezado de datos")
+```
+
+
+### **Causa y gravedad en accidentes**
+
+```{r fig.height=4, fig.width=12}
+
+datos %>%
+  ggplot() +
+  geom_bar(mapping = aes(CLASE_ACCIDENTE, fill = CLASE_ACCIDENTE)) +
+  xlab("Clases de accidentes") + ylab("Número de Accidentes") +
+  theme(legend.title=element_blank()) +
+  ggtitle("Accidentes viales por clase de accidente") + theme_light()  +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2))-> p1
+
+datos %>%
+  ggplot() +
+  geom_bar(mapping = aes(GRAVEDAD, fill = CLASE_ACCIDENTE)) +
+  xlab("Gravedad de accidentes") + ylab("Número de Accidentes") +
+  theme(legend.title=element_blank()) +
+  ggtitle("Accidentes viales por gravedad de accidente") + theme_light()  +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2))-> p2
+
+
+
+gridExtra::grid.arrange(p1,p2, ncol = 2)
+```
+
+
+
+* Se encuentrá que la mayor causa de accidentes es por choques. 
+
+* Los accidentes con heridos son mayormente causados por choques y otras causas 
+
+* La frecuencia de accidentes donde involucra muertes es muy inferior comparativamente con las demás categorías de gravedad. 
+
+
+
+### **Comportamiento de accidentes segun fechas.**
+
+
+
+```{r fig.height=6, fig.width=12}
+datos %>% mutate(DIA = as.factor(DIA)) %>%
+ggplot() +
+  geom_bar(mapping = aes(DIA, fill = DIA)) +xlab("Día de la semana") + ylab("Número de Accidentes") +
+  theme(legend.title=element_blank())+
+  ggtitle("Accidentes viales por día de la semana ") + theme_light()+ theme(legend.position = "none") -> p1
+
+datos %>% mutate(MES = as.factor(MES)) %>%
+ggplot() +
+  geom_bar(mapping = aes(MES, fill = MES)) +
+  xlab("Mes") + ylab("Número de Accidentes") +
+  theme(legend.title=element_blank()) +
+  ggtitle("Accidentes viales por Mes")+ theme_light()+ theme(legend.position = "none") -> p2
+
+
+datos %>% mutate(AÑO = as.factor(AÑO)) %>% 
+ggplot() +
+  geom_bar(mapping = aes(AÑO, fill =AÑO)) +
+  xlab("Año") + ylab("Número de Accidentes") +
+  theme(legend.title=element_blank()) +
+  ggtitle("Accidentes viales por Año") + theme_light() + theme(legend.position = "none")-> p3
+
+
+ggplot(data = datos) +
+  geom_density(mapping = aes(HORA), color = "red", fill = "tomato", alpha = 0.3) +
+  xlab("Año") + ylab("Número de Accidentes") +
+  theme(legend.title=element_blank())+ theme(legend.position = "none") +
+  ggtitle("Densidad Hora de Accidente") + theme_light() -> p4
+
+
+
+gridExtra::grid.arrange(p1,p2,p3,p4, ncol = 2)
+```
+
+
+* Se visualiza que se presenta una mayor accidentabilidad los días Martes,Miércoles,jueves y viernes.Se infiere que el día viernes se presenta mayor accidentabilidad porque comienza fin de semana provocando más movilidad en la ciudad de Medellín y el día domingo disminuye notablemente la accidentabilidad en el cual muchas personas no laboran y hay menos flujo vehicular.
+
+
+
+* En el mes de agosto y julio es donde el número de accidentes es superior , en julio esto puede darse por el periodo de vacaciones y en agosto por algunos eventos relacionados con feria de flores.En enero, abril y junio se presenta la menor accidentabilidad.
+
+
+
+* En el año 2016 se presentó la mayor accidentabilidad, El número de accidentes para el 2020 es bajo debido a la crisis sanitaria que afrontaba el mundo por motivos del COVID-19 y se debe tener en cuenta que los registros en este año solo son hasta el 31 de agosto.
+
+* Durante el dia, el mayor número de accidentes ocurren en las hora pico, alrededor de las 6am, 12pm y 6pm. 
+
+
+## **Predicción**
+
+Para la predicción del número de acciedentes se usarón técnicas de regresión como: Lasso, Ridge, Poisson y Arboles. Para seleccionar el modelo adecuado se usó como métrica el error cuadrático medio **ECM**. El objetivo es encontrar un modelo que el ECM en los datos de prueba no sea superado en un 15% por el ECM de los datos de entreno. 
+
+Cada una de las regresiones se usó para modelar el número de accidentes de acuerdo a las clases de accidentes (atropello,caída de ocupante,choque y otro).
+
+Los modelos ganadores fueron los siguientes: 
+- Caída de ocupante: Regresión Poisson.
+- Atropello: Regresión Poisson.
+- Choque: Regresión Ridge,
+- Otro: Regresión Ridge
+
+
+En cada uno de los modelos se observó que el ECM de las predicciones para el año 2020 son superiores a lo encontrado en el conjunto de datos de entreno y prueba. Esto se debe a que el confinamiento implicó que el número de vehiculos en circulación por la ciudad disminuyera ocasionando una reduccion en la accidentabilidad. Este cambio estructural causado por la pandemia trae como consecuencia una sobreestimación en la predicción. 
+
+### **Datos de entrenamiento y validación**
+
+Los datos de entrenamiento para los modelos predictivos son los registros de accidentes de los años 2014,2015,2016 y 2017. Para validar los modelos se usan los accidentes de los años 2018 y 2019.
+
+```{r}
+datos_train <- datos %>% filter(AÑO<=2017)
+datos_test <- datos %>% filter(AÑO>2017 & AÑO < 2020)
+```
+
+```{r}
+#datos fechas especiales --------------------------------------------------------
+
+FESTIVOS <- read.csv("../datos/FESTIVOS.csv")
+FESTIVOS <-  FESTIVOS%>% mutate(FESTIVO = 1)
+FESTIVOS$FECHA <- dmy(FESTIVOS$FECHA)
+
+FERIAS  <- readxl::read_excel( "../datos/Ferias.xlsx")
+FERIAS<-  FERIAS%>% mutate(FERIA = 1)
+
+FERIAS$FECHA <- ymd(FERIAS$FECHA)
+
+
+clases <- c( "Atropello", "Caída Ocupante", "Choque", "Otro" )
+
+datos_diarios <- function(clase_accidente){
+
+  datos$FECHA_ACCIDENTE <- as.Date(datos$FECHA_ACCIDENTE)
+  
+  
+datos %>%
+  select(FECHA_ACCIDENTE,CLASE_ACCIDENTE, GRAVEDAD, DISEÑO,  AÑO, MES,DIA, SEMANA, DIA_MES, HORA) %>% 
+  group_by(FECHA_ACCIDENTE, CLASE_ACCIDENTE,GRAVEDAD, DISEÑO,AÑO,MES,DIA, SEMANA, DIA_MES) %>%
+  summarise( CASOS = n()) %>%
+  ungroup()  %>% 
+  full_join(FERIAS,by = c("FECHA_ACCIDENTE" = "FECHA")) %>% 
+  full_join(FESTIVOS,by = c("FECHA_ACCIDENTE" = "FECHA")) %>% 
+  mutate(FERIA = ifelse(is.na(FERIA), 0, 1)) %>% 
+  mutate(FESTIVO = ifelse(is.na(FESTIVO), 0, 1)) %>% 
+  select(-FECHA_ACCIDENTE) %>%
+  filter(CLASE_ACCIDENTE == clase_accidente) %>%
+  select(-CLASE_ACCIDENTE) -> datos_modelo
+
+return(datos_modelo)
+
+}
+
+```
+
+
+
+### **Modelo para Caída de ocupante**
+
+En la categoría Caída de ocupante el mejor modelo predictivo es el modelo de arboles de regresion. 
+
+* El ECM para cada uno de los modelos propuestos se muestra a continuación.
+
+```{r}
+# Modelo diario ----------------------------------------------------------------
+
+diario_df <- datos_diarios(clase_accidente = "Caída Ocupante")
+
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+# Modelo ridge -----------------------------------------------------------------
+
+x <- model.matrix(CASOS ~ ., diario_df)[, -1]   # matriz de modelos   
+y <- diario_df$CASOS                            # variable dependiente 
+train <- x[,"AÑO"] <2018
+test <- x[,"AÑO"] >= 2018 &  x[,"AÑO"] < 2020
+x_train <- x[train,]
+x_test <- x[test,]
+y_train <- y[train]
+y_test <- y[test]
+
+gridz <- 10^seq(-2, 5, length = 100)  # grilla posibles valores de lambda
+
+#Entreno ridge 
+
+mod_ridge_diarios <- glmnet(x_train, y_train, alpha = 0, lambda = gridz)
+
+cv_ridge<-cv.glmnet(x_train, y_train,alpha=0)    # cross validation para escoger el lambda 
+best_lambda_ridge <- cv_ridge$lambda.min
+out_ridge <- glmnet (x_train, y_train,alpha=0)
+coef_ridge <- predict(out_ridge, type = "coefficients", s = best_lambda_ridge) 
+
+ridge_pred_train <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_train)
+ridge_pred_test <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_test)
+ridge_pred_2020 <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x[x[, "AÑO"]==2020,])
+ECM_ridge_train <- mean((ridge_pred_train - y_train)^2)
+ECM_ridge_test <- mean((ridge_pred_test - y_test)^2)
+ECM_ridge_2020 <- mean((ridge_pred_2020 - y[x[, "AÑO"]==2020])^2)
+ridge <- c(ECM_ridge_train, ECM_ridge_test, ECM_ridge_2020)
+
+
+
+#Entreno lasso
+
+mod_lasso_diarios <- glmnet(x_train, y_train, alpha = 1, lambda = gridz)
+
+cv_lasso<-cv.glmnet(x_train, y_train,alpha=1)    # cross validation para escoger el lambda 
+best_lambda_lasso <- cv_ridge$lambda.min
+out_lasso <- glmnet (x_train, y_train,alpha=1)
+coef_lasso <- predict(out_ridge, type = "coefficients", s = best_lambda_lasso) 
+
+lasso_pred_train <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_train)
+lasso_pred_test <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_test)
+lasso_pred_2020 <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x[x[, "AÑO"]==2020,])
+ECM_lasso_train <- mean((lasso_pred_train - y_train)^2)
+ECM_lasso_test <- mean((lasso_pred_test - y_test)^2)
+ECM_lasso_2020 <- mean((lasso_pred_2020 - y[x[, "AÑO"]==2020])^2)
+lasso <- c(ECM_lasso_train, ECM_lasso_test, ECM_lasso_2020)
+
+# Poisson model ----------------------------------------------------------------
+
+
+
+mod_poisson_diarios  <- glm(CASOS ~ ., data = datos_train, family = poisson(link = "log"))
+
+poisson_predit_train <- predict(mod_poisson_diarios, newdata = datos_train,type = "response")
+poisson_predit_test <- predict(mod_poisson_diarios, newdata = datos_test,type = "response")
+poisson_predit_2020 <- predict(mod_poisson_diarios, newdata = datos_2020,type = "response")
+
+ECM_poisson_train <- mean((poisson_predit_train - datos_train$CASOS)^2)
+ECM_poisson_test <- mean((poisson_predit_test - datos_test$CASOS)^2)
+ECM_poisson_2020 <- mean((poisson_predit_2020 - datos_2020$CASOS)^2)
+poisson <- c(ECM_poisson_train, ECM_poisson_test, ECM_poisson_2020)
+
+
+#rpart------------------------------------------------------------------
+diario_df <- datos_diarios(clase_accidente = "Caída Ocupante")
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+
+set.seed(111)
+diarios_rp <- rpart(CASOS ~ .,data = datos_train)
+
+
+ECM_rf_train <- mean((predict(diarios_rp, newdata = datos_train)-datos_train$CASOS)^2)
+ECM_rf_test <-mean((predict(diarios_rp, newdata = datos_test)-datos_test$CASOS)^2)
+ECM_rf_2020 <-mean((predict(diarios_rp, newdata = datos_2020)-datos_2020$CASOS)^2)
+rp <- c(ECM_rf_train, ECM_rf_test, ECM_rf_2020)
+
+ECM_Caida_diarios <- data.frame(ridge, lasso, poisson, rp)# Modelo ganador, poisson. 
+
+
+ECM_Caida_diarios%>%
+  kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+
+
+
+
+
+
+
+### **Modelo para Atropello **
+
+En la categoría Atropello el mejor modelo predictivo es el modelo de regresión poisson, la ecuación del modelo ajusttado se presenta a continuación. 
+
+$$Casos_{Atropello, i}=Exp(\beta_{0}+\beta_{1,k}\cdot GRAVEDAD_i+\beta_{2,m}\cdot DISEÑO_i+\beta_3\cdot   AÑO+\\ \beta_4 \cdot MES+\beta_{5,p}\cdot DIA+\beta_6\cdot SEMANA+\beta_7\cdot   DIAMES+\beta_8\cdot    FERIA+\beta_9\cdot    FESTIVO)$$
+
+El resumen de los parámetros ajustados se muestra en la siguiente tabla. 
+
+```{r}
+diario_df <- datos_diarios(clase_accidente = "Atropello")
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+
+mod_poisson_diarios  <- glm(CASOS ~ ., data = datos_train, family = poisson(link = "log"))
+
+poisson_predit_train <- predict(mod_poisson_diarios, newdata = datos_train,type = "response")
+poisson_predit_test <- predict(mod_poisson_diarios, newdata = datos_test,type = "response")
+poisson_predit_2020 <- predict(mod_poisson_diarios, newdata = datos_2020,type = "response")
+
+ECM_poisson_train <- mean((poisson_predit_train - datos_train$CASOS)^2)
+ECM_poisson_test <- mean((poisson_predit_test - datos_test$CASOS)^2)
+ECM_poisson_2020 <- mean((poisson_predit_2020 - datos_2020$CASOS)^2)
+poisson <- c(ECM_poisson_train, ECM_poisson_test, ECM_poisson_2020)
+
+pander::pander(mod_poisson_diarios)
+
+```
+
+
+* El ECM para cada uno de los modelos propuestos se muestra a continuación.
+
+```{r}
+
+# Modelo ridge -----------------------------------------------------------------
+
+x <- model.matrix(CASOS ~ ., diario_df)[, -1]   # matriz de modelos   
+y <- diario_df$CASOS                            # variable dependiente 
+train <- x[,"AÑO"] <2018
+test <- x[,"AÑO"] >= 2018 &  x[,"AÑO"] < 2020
+x_train <- x[train,]
+x_test <- x[test,]
+y_train <- y[train]
+y_test <- y[test]
+
+gridz <- 10^seq(-2, 5, length = 100)  # grilla posibles valores de lambda
+
+#Entreno ridge 
+
+mod_ridge_diarios <- glmnet(x_train, y_train, alpha = 0, lambda = gridz)
+
+cv_ridge<-cv.glmnet(x_train, y_train,alpha=0)    # cross validation para escoger el lambda 
+best_lambda_ridge <- cv_ridge$lambda.min
+out_ridge <- glmnet (x_train, y_train,alpha=0)
+coef_ridge <- predict(out_ridge, type = "coefficients", s = best_lambda_ridge) 
+
+ridge_pred_train <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_train)
+ridge_pred_test <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_test)
+ridge_pred_2020 <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x[x[, "AÑO"]==2020,])
+ECM_ridge_train <- mean((ridge_pred_train - y_train)^2)
+ECM_ridge_test <- mean((ridge_pred_test - y_test)^2)
+ECM_ridge_2020 <- mean((ridge_pred_2020 - y[x[, "AÑO"]==2020])^2)
+ridge <- c(ECM_ridge_train, ECM_ridge_test, ECM_ridge_2020)
+
+#Entreno lasso
+
+mod_lasso_diarios <- glmnet(x_train, y_train, alpha = 1, lambda = gridz)
+
+cv_lasso<-cv.glmnet(x_train, y_train,alpha=1)    # cross validation para escoger el lambda 
+best_lambda_lasso <- cv_ridge$lambda.min
+out_lasso <- glmnet (x_train, y_train,alpha=1)
+coef_lasso <- predict(out_ridge, type = "coefficients", s = best_lambda_lasso) 
+
+lasso_pred_train <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_train)
+lasso_pred_test <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_test)
+lasso_pred_2020 <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x[x[, "AÑO"]==2020,])
+ECM_lasso_train <- mean((lasso_pred_train - y_train)^2)
+ECM_lasso_test <- mean((lasso_pred_test - y_test)^2)
+ECM_lasso_2020 <- mean((lasso_pred_2020 - y[x[, "AÑO"]==2020])^2)
+lasso <- c(ECM_lasso_train, ECM_lasso_test, ECM_lasso_2020)
+
+# Poisson model ----------------------------------------------------------------
+
+
+# randomforest------------------------------------------------------------------
+
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+set.seed(111)
+diarios_rp <- rpart(CASOS ~ .,data = datos_train)
+
+ECM_rf_train <- mean((predict(diarios_rp, newdata = datos_train)-datos_train$CASOS)^2)
+ECM_rf_test <-mean((predict(diarios_rp, newdata = datos_test)-datos_test$CASOS)^2)
+ECM_rf_2020 <-mean((predict(diarios_rp, newdata = datos_2020)-datos_2020$CASOS)^2)
+rp <- c(ECM_rf_train, ECM_rf_test, ECM_rf_2020)
+
+ECM_Atropello_diarios <- data.frame(ridge, lasso, poisson, rp)# modelo ganador, poisson. 
+ECM_Atropello_diarios%>%
+  kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+  
+```
+
+
+### **Modelo para Choque **
+
+Aunque para la clase de Choque, los modelos Poisson y Arboles tienen un menor ECM, no los seleccionamos ya que son susceptibles a un sobreentrenamiento. Por tal motivo, se decidio seleccionar Ridge como modeo adecuado. 
+
+Para la estimación del modelo Ridge se minimiza la funcion $RSS_{Ridge}$ e funcion de los parametros. 
+
+$$RSS_{Ridge}=\sum_{i=1}^n(y_i-f(x_i))^2+\sum_{i=1}^p\beta_j^2$$
+
+donde: 
+
+$$f(x) = \beta_{0}+\beta_{1,k}\cdot GRAVEDAD_i+\beta_{2,m}\cdot DISEÑO_i+\\ \beta_3\cdot   AÑO+\beta_4\cdot MES+\beta_{5,p}\cdot DIA+\beta_6\cdot SEMANA+\beta_7\cdot   DIAMES+\beta_8\cdot    FERIA+\beta_9\cdot    FESTIVO$$
+
+
+* importancia de los parámetros del modelo. 
+
+Se observa que un gran número de parámetros son relevantes para el modelo. El $\lambda=1.045628$ optímo se encuentra por medio de validación cruzada. 
+
+```{r}
+# Modelo diario ----------------------------------------------------------------
+
+diario_df <- datos_diarios(clase_accidente = "Choque")
+
+
+# Modelo ridge -----------------------------------------------------------------
+
+x <- model.matrix(CASOS ~ ., diario_df)[, -1]   # matriz de modelos   
+y <- diario_df$CASOS                                # variable dependiente 
+train <- x[,"AÑO"] <2018
+test <- x[,"AÑO"] >= 2018 &  x[,"AÑO"] < 2020
+x_train <- x[train,]
+x_test <- x[test,]
+y_train <- y[train]
+y_test <- y[test]
+
+gridz <- 10^seq(-2, 5, length = 100)  # grilla posibles valores de lambda
+
+#Entreno ridge 
+
+mod_ridge_diarios <- glmnet(x_train, y_train, alpha = 0, lambda = gridz)
+
+plot(mod_ridge_diarios, xvar = "lambda", label = TRUE, xlim = c(-5.5, 10), lwd = 2)   
+
+```
+
+* Valor de los coeficientes del modelo
+
+
+```{r}
+cv_ridge<-cv.glmnet(x_train, y_train,alpha=0)    # cross validation para escoger el lambda 
+best_lambda_ridge <- cv_ridge$lambda.min
+out_ridge <- glmnet (x_train, y_train,alpha=0)
+coef_ridge <- predict(out_ridge, type = "coefficients", s = best_lambda_ridge) 
+
+ridge_pred_train <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_train)
+ridge_pred_test <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_test)
+ridge_pred_2020 <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x[x[, "AÑO"]==2020,])
+ECM_ridge_train <- mean((ridge_pred_train - y_train)^2)
+ECM_ridge_test <- mean((ridge_pred_test - y_test)^2)
+ECM_ridge_2020 <- mean((ridge_pred_2020 - y[x[, "AÑO"]==2020])^2)
+ridge <- c(ECM_ridge_train, ECM_ridge_test, ECM_ridge_2020)
+data.frame(as.matrix(coef_ridge)) %>% kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+
+* La siguiente tabla muestra el ECM para cada uno de los modelos. 
+
+
+```{r}
+
+#Entreno lasso
+
+mod_lasso_diarios <- glmnet(x_train, y_train, alpha = 1, lambda = gridz)
+
+cv_lasso<-cv.glmnet(x_train, y_train,alpha=1)    # cross validation para escoger el lambda 
+best_lambda_lasso <- cv_ridge$lambda.min
+out_lasso <- glmnet (x_train, y_train,alpha=1)
+coef_lasso <- predict(out_ridge, type = "coefficients", s = best_lambda_lasso) 
+
+lasso_pred_train <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_train)
+lasso_pred_test <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_test)
+lasso_pred_2020 <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x[x[, "AÑO"]==2020,])
+ECM_lasso_train <- mean((lasso_pred_train - y_train)^2)
+ECM_lasso_test <- mean((lasso_pred_test - y_test)^2)
+ECM_lasso_2020 <- mean((lasso_pred_2020 - y[x[, "AÑO"]==2020])^2)
+lasso <- c(ECM_lasso_train, ECM_lasso_test, ECM_lasso_2020)
+
+
+
+# Poisson model ----------------------------------------------------------------
+
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+
+mod_poisson_diarios  <- glm(CASOS ~ ., data = datos_train, family = poisson(link = "log"))
+
+poisson_predit_train <- predict(mod_poisson_diarios, newdata = datos_train,type = "response")
+poisson_predit_test <- predict(mod_poisson_diarios, newdata = datos_test,type = "response")
+poisson_predit_2020 <- predict(mod_poisson_diarios, newdata = datos_2020,type = "response")
+
+ECM_poisson_train <- mean((poisson_predit_train - datos_train$CASOS)^2)
+ECM_poisson_test <- mean((poisson_predit_test - datos_test$CASOS)^2)
+ECM_poisson_2020 <- mean((poisson_predit_2020 - datos_2020$CASOS)^2)
+poisson <- c(ECM_poisson_train, ECM_poisson_test, ECM_poisson_2020)
+
+# randomforest------------------------------------------------------------------ 
+
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+set.seed(111)
+diarios_rp <- rpart(CASOS ~ .,data = datos_train)
+
+
+ECM_rf_train <- mean((predict(diarios_rp, newdata = datos_train)-datos_train$CASOS)^2)
+ECM_rf_test <-mean((predict(diarios_rp, newdata = datos_test)-datos_test$CASOS)^2)
+ECM_rf_2020 <-mean((predict(diarios_rp, newdata = datos_2020)-datos_2020$CASOS)^2)
+rp <- c(ECM_rf_train, ECM_rf_test, ECM_rf_2020)
+
+ECM_Choque_diarios <- data.frame(ridge, lasso, poisson, rp)
+
+
+ECM_Choque_diarios%>%
+ kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")   # modelo ganador, Ridge
+
+
+```
+
+
+### **Modelo para Otro **
+
+En la clase de accidente **otros** la cual esán incluidas las categorías de volcamiento, incendio y otras causas se seleccionó como mejor modelo la regresión Ridge ya que el ECM de entreno y prueba son los mas cercanos. 
+
+El $\lambda=0.4100249$ optimo se encontró por medio de validación cruzada. Los parámetros ajustados se presentan en la siguiente tabla.  
+
+```{r}
+# Modelo diario ----------------------------------------------------------------
+
+diario_df <- datos_diarios(clase_accidente = "Otro")
+
+
+# Modelo ridge -----------------------------------------------------------------
+
+x <- model.matrix(CASOS ~ ., diario_df)[, -1]   # matriz de modelos   
+y <- diario_df$CASOS                            # variable dependiente 
+train <- x[,"AÑO"] <2018
+test <- x[,"AÑO"] >= 2018 &  x[,"AÑO"] < 2020
+x_train <- x[train,]
+x_test <- x[test,]
+y_train <- y[train]
+y_test <- y[test]
+
+gridz <- 10^seq(-2, 5, length = 100)  ## grilla posibles valores de lambda
+
+#Entreno ridge 
+
+mod_ridge_diarios <- glmnet(x_train, y_train, alpha = 0, lambda = gridz)
+
+cv_ridge<-cv.glmnet(x_train, y_train,alpha=0)    # cross validation para escoger el lambda 
+best_lambda_ridge <- cv_ridge$lambda.min
+out_ridge <- glmnet (x_train, y_train,alpha=0)
+coef_ridge <- predict(out_ridge, type = "coefficients", s = best_lambda_ridge) 
+
+ridge_pred_train <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_train)
+ridge_pred_test <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x_test)
+ridge_pred_2020 <- predict(mod_ridge_diarios, s = best_lambda_ridge, newx = x[x[, "AÑO"]==2020,])
+ECM_ridge_train <- mean((ridge_pred_train - y_train)^2)
+ECM_ridge_test <- mean((ridge_pred_test - y_test)^2)
+ECM_ridge_2020 <- mean((ridge_pred_2020 - y[x[, "AÑO"]==2020])^2)
+ridge <- c(ECM_ridge_train, ECM_ridge_test, ECM_ridge_2020)
+
+data.frame(as.matrix(coef_ridge)) %>% kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+
+
+* La siguiente tabla muestra el ECM para cada uno de los modelos.
+
+```{r}
+mod_lasso_diarios <- glmnet(x_train, y_train, alpha = 1, lambda = gridz)
+
+cv_lasso<-cv.glmnet(x_train, y_train,alpha=1)    # cross validation para escoger el lambda 
+best_lambda_lasso <- cv_ridge$lambda.min
+out_lasso <- glmnet (x_train, y_train,alpha=1)
+coef_lasso <- predict(out_ridge, type = "coefficients", s = best_lambda_lasso) 
+
+lasso_pred_train <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_train)
+lasso_pred_test <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x_test)
+lasso_pred_2020 <- predict(mod_lasso_diarios, s = best_lambda_lasso, newx = x[x[, "AÑO"]==2020,])
+ECM_lasso_train <- mean((lasso_pred_train - y_train)^2)
+ECM_lasso_test <- mean((lasso_pred_test - y_test)^2)
+ECM_lasso_2020 <- mean((lasso_pred_2020 - y[x[, "AÑO"]==2020])^2)
+lasso <- c(ECM_lasso_train, ECM_lasso_test, ECM_lasso_2020)
+
+# Poisson model ----------------------------------------------------------------
+
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+
+mod_poisson_diarios  <- glm(CASOS ~ ., data = datos_train, family = poisson(link = "log"))
+
+poisson_predit_train <- predict(mod_poisson_diarios, newdata = datos_train,type = "response")
+poisson_predit_test <- predict(mod_poisson_diarios, newdata = datos_test,type = "response")
+poisson_predit_2020 <- predict(mod_poisson_diarios, newdata = datos_2020,type = "response")
+
+ECM_poisson_train <- mean((poisson_predit_train - datos_train$CASOS)^2)
+ECM_poisson_test <- mean((poisson_predit_test - datos_test$CASOS)^2)
+ECM_poisson_2020 <- mean((poisson_predit_2020 - datos_2020$CASOS)^2)
+poisson <- c(ECM_poisson_train, ECM_poisson_test, ECM_poisson_2020)
+
+# randomforest------------------------------------------------------------------
+
+datos_train <- diario_df %>% filter(AÑO %in% c(2014,2015,2016,2017))
+datos_test <- diario_df %>% filter(AÑO %in% c(2018,2019))
+datos_2020 <- diario_df %>% filter(AÑO %in% c(2020))
+
+set.seed(111)
+diarios_rp <- rpart(CASOS ~ .,data = datos_train)
+
+
+
+ECM_rf_train <- mean((predict(diarios_rp, newdata = datos_train)-datos_train$CASOS)^2)
+ECM_rf_test <-mean((predict(diarios_rp, newdata = datos_test)-datos_test$CASOS)^2)
+ECM_rf_2020 <-mean((predict(diarios_rp, newdata = datos_2020)-datos_2020$CASOS)^2)
+rp <- c(ECM_rf_train, ECM_rf_test, ECM_rf_2020)
+
+ECM_Otro_diarios <- data.frame(ridge, lasso, poisson, rp) 
+
+
+ECM_Otro_diarios%>%
+  kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")   # modelo ganador, Ridge
+
+```
+
+
+## **Agrupamiento.**
+
+### **Selección de variables.** 
+
+
+Para el agrupamiento se utilizó la base de datos previamente depurada, a partir de esta se crearon varaiables asociadas a cada uno de los barrios tales como: accidentes con muertos, heridos, solo daños,atropello,caída de ocupante,choque, otro y la proporción de accientes ocurridos en días laborales (semana).
+
+
+
+# Creación de variables
+
+```{r}
+
+
+
+datos_agrupamiento1<-datos %>% group_by(BARRIO, GRAVEDAD) %>% summarise(n = n()) %>% spread(GRAVEDAD, value = n) %>%
+  mutate(`Con heridos` =ifelse(is.na(`Con heridos`), 0, `Con heridos`),
+         `Con muertos` =ifelse(is.na(`Con muertos`), 0, `Con muertos`),
+         `Solo daños` =ifelse(is.na(`Solo daños`), 0, `Solo daños`))
+
+datos_agrupamiento2<- datos %>% group_by(BARRIO, CLASE_ACCIDENTE) %>% summarise(n = n()) %>% spread(CLASE_ACCIDENTE, value = n) %>%
+  mutate( Atropello=ifelse(is.na(Atropello), 0, Atropello ),
+          `Caída Ocupante`=ifelse(is.na(`Caída Ocupante`), 0,`Caída Ocupante` ),
+           Choque =ifelse(is.na(Choque), 0,Choque ),
+          Otro =ifelse(is.na(Otro), 0,Otro )) 
+
+datos <- read.csv("../datos/datos_listos.csv")
+datos_agrupamiento3<- datos %>% 
+  mutate(DIA = ifelse(DIA %in%c("Sab", "Dom"), "FinSemana", "semana")) %>% 
+  group_by(BARRIO, DIA) %>% summarise(n = n()) %>% 
+    spread(DIA, value = n) %>% mutate(Semana = round((semana)/(FinSemana+semana),4)) %>%
+  select(-semana, -FinSemana) %>% 
+  mutate(Semana = ifelse(is.na(Semana), 0, Semana))
+  
+datos_agrupamiento <- datos_agrupamiento1 %>% inner_join(datos_agrupamiento2) %>% inner_join(datos_agrupamiento3)
+x_agrupamiento <- datos_agrupamiento %>% select(BARRIO)
+datos_agrupamiento <- datos_agrupamiento [,-1]
+
+head(datos_agrupamiento)%>% 
+  kbl()%>% 
+  kable_classic(full_width = F, html_font = "Cambria")
+  
+```
+
+
+### Análisis exploratorio
+
+* Resumen de las variables para el agrupamiento. 
+
+
+```{r}
+summary(datos_agrupamiento)%>%
+  kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+
+* Grafico de correlación. 
+
+
+```{r fig.height=6, fig.width=12}
+pairs.panels(datos_agrupamiento[,-1], 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = TRUE # show correlation ellipses
+             )
+```
+
+
+Del anterior gráfico se observa que las variables de accidebtabilidad asociada a los barrios tiene una correlación positiva y alta. Ademaás todas las distribuciones son sesgadas a la derecha indicando que la mayoría de barrios tienen baja frecuecnia de casos. 
+
+
+
+Para agupar los barrios se usa el algoritmo de knn de la siguiente forma: 
+
+
+
+* Paso 1: Se generan aleatoriamente $k$ centroides,
+* Paso 2: Se asigna a cada individuo al centroide mas cercano, donde cada centroide define un grupo.
+* Paso 3: Se recalcula el centroide de cada grupo como el promedio de las observaciones del grupo.
+* Paso 4: se repite el paso 2 y 3 hasta que cumpla un número $n$ de iteraciones. 
+
+
+A continuación se muestran los barrios, con la clasificación de los grupos en función del numero de centroides. 
+
+```{r}
+datos_agrupamiento <- datos_agrupamiento
+set.seed(3) 
+centers <- 2:10
+resultados <- vector(mode="list",length = 9)
+for (i in 1:length(centers)){
+  resultados[[i]] <- kmeans(x=datos_agrupamiento,centers=centers[i],nstart = 3)
+}
+grupos <- do.call("rbind",lapply(resultados,"[[",1))
+grupos <- as.data.frame(t(grupos))
+names(grupos) <- paste0("K",2:10)
+datos_ilustracion_cl <- data.frame(datos_agrupamiento, grupos)
+head(data.frame(x_agrupamiento,datos_ilustracion_cl[9:17]))%>%
+  kbl()%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+```
+
+
+### Grafícas de dispersión entre variables clasificadas por el número de grupos.  
+
+* **Atropello vs Heridos**
+
+
+```{r fig.height=6, fig.width=12}
+grph_iulstr_cl_k <- ggplot(datos_ilustracion_cl,aes(x=Choque,y=Con.muertos))
+g1 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K2))) + theme_bw() + labs(title = "K=2",
+                                      x = "Choque",
+                                      y = "Con muertos",colour="Grupo")
+g2 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K3))) + theme_bw() + labs(title = "K=3",
+                                      x = "Choque",
+                                      y = "Con muertos",colour="Grupo")
+g3 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K4))) + theme_bw() + labs(title = "K=4",
+                                      x = "Choque",
+                                      y = "Con muertos",colour="Grupo")
+g4 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K5))) + theme_bw() + labs(title = "K=5",
+                                      x = "Choque",
+                                      y = "Con muertos",colour="Grupo")
+gridExtra::grid.arrange(g1,g2,g3,g4)
+```
+
+
+* **Semana vs Heridos**
+
+```{r fig.height=6, fig.width=12}
+grph_iulstr_cl_k <- ggplot(datos_ilustracion_cl,aes(x=Semana ,y=Con.heridos))
+g1 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K2))) + theme_bw() + labs(title = "K=2",
+                                      x = "Proporción accidentes Lunes-Viernes",
+                                      y = "Con heridos",colour="Grupo")
+g2 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K3))) + theme_bw() + labs(title = "K=3",
+                                      x = "Proporción accidentes Lunes-Viernes",
+                                      y = "Con heridos",colour="Grupo")
+g3 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K4))) + theme_bw() + labs(title = "K=4",
+                                      x = "Proporción accidentes Lunes-Viernes",
+                                      y = "Con heridos",colour="Grupo")
+g4 <- grph_iulstr_cl_k + geom_point(aes(colour = factor(K5))) + theme_bw() + labs(title = "K=5",
+                                      x = "Proporción accidentes Lunes-Viernes",
+                                      y = "Con heridos",colour="Grupo")
+gridExtra::grid.arrange(g1,g2,g3,g4)
+```
+
+
+## Criterio para escoger el $K$. 
+
+
+De acuerdo al desempeño del agrupamiento en función de los k grupos, se decide que el k apropiado es $k=4$. Ya que el paso de $k=4$ a $k=5$ la diferencia en la metrica no es muy relevante. 
+
+```{r}
+metrica_cl <- do.call("rbind",lapply(resultados,"[[",5))
+num_centros <- 2:10
+res_num_cen <- data.frame(num_centros,metrica_cl)
+grph_metrica_cl <- ggplot(res_num_cen,aes(x=num_centros,xend=num_centros,y=0,yend=metrica_cl))
+grph_metrica_cl + geom_point(aes(x=num_centros,y=metrica_cl)) +  geom_segment() + theme_bw() + labs(title = "Desempeño del agrupamiento \n en función de K",
+                                      x = "K (cantidad de centros)",
+                                      y = "Métrica de desempeño")
+```
+
+### Análisis descriptivo de grupos. 
+
+```{r fig.height=6, fig.width=12}
+
+grph_bxp <- ggplot(datos_ilustracion_cl,aes(y=Semana,colour = factor(K4)))
+b1<- grph_bxp + geom_boxplot(aes(group=factor(K4)),orientation="x") + theme_bw() + 
+  labs(title = "Boxplot proporción accidentes en semana",
+                                      x = "Grupos",
+                                      y = "Proporción de accidentes",colour="Grupo") + 
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+
+grph_bxp <- ggplot(datos_ilustracion_cl,aes(y=Choque,colour = factor(K4)))
+b2<- grph_bxp + geom_boxplot(aes(group=factor(K4)),orientation="x") + theme_bw() + 
+  labs(title = "Boxplot choques para cada grupo",
+                                      x = "Grupos",
+                                      y = "choques",colour="Grupo") + 
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+
+grph_bxp <- ggplot(datos_ilustracion_cl,aes(y=Solo.daños,colour = factor(K4)))
+b3<- grph_bxp + geom_boxplot(aes(group=factor(K4)),orientation="x") + theme_bw() + 
+  labs(title = "Boxplot solo daños para cada grupo",
+                                      x = "Grupos",
+                                      y = "Solo daños por accidentes",colour="Grupo") + 
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+grph_bxp <- ggplot(datos_ilustracion_cl,aes(y=Con.muertos,colour = factor(K4)))
+b4<- grph_bxp + geom_boxplot(aes(group=factor(K4)),orientation="x") + theme_bw() + 
+  labs(title = "Boxplot muertos para cada grupo",
+                                      x = "Grupos",
+                                      y = "Muertes por accidentes",colour="Grupo") + 
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+gridExtra::grid.arrange(b1,b2,b3,b4)
+```
+
+
+### **Clasificación de grupos**
+
+
+* Grupo 1: **Accidentabilidad Alta Crítica:**
+
+A este grupo pertenecen 13 barrios de la ciudad de Medellín, los cuales presentan una alta accidentabilidad. Son los que presentan un mayor número en las clases y gravedad de accidentes, además son los que tiene una mayor porporción de accidentes durante la semana laboral. 
+
+
+* Grupo 2: **Accidentabilidad Alta Moderada:**
+
+A este grupo pertenecen 24 barrios de la ciudad de Medellín, los cuales presentan una alta accidentabilidad, pero en todas las variables los registros son menores a los registrados en el grupo de accidentabilidad alta critica.
+
+* Grupo 3: **Accidentabilidad Moderada:**
+
+A este grupo pertenecen 79 barrios de la ciudad de Medellín. En comparacion con el grupo de accidentabilidad alta crítica, este grupo tiene en promedio el 33% del número de accidentes en heridos, 25% en muertes y 20% de solo daños. este mismo comportamiento se evidencia en Atropello, caída de ocupante, Choque y otros.  
+
+* Grupo 4: **Accidentabilidad Baja:**
+
+A este grupo pertenecen el 57% de los barrios, este gruopo se caracteeriza por tener un numero de accidentes bajo comparativamente con los otros. Sin embargo lo mas caracteristico es que en promedio, los muertos es de 1.7. 
+
+
+
+```{r}
+grupo <- grupos$K4
+grupo <- ifelse(grupo==1, "Accidentabilidad Alta Crítica", 
+                            ifelse(grupo == 2,"Accidentabilidad Alta Moderada",
+                                   ifelse(grupo == 3, "Accidentabilidad Moderada", 
+                                          "Accidentabilidad Baja")))
+
+grupo <- factor(grupo, levels = c("Accidentabilidad Alta Crítica","Accidentabilidad Alta Moderada",
+                                  "Accidentabilidad Moderada","Accidentabilidad Baja"))
+
+cl_medias <- aggregate(.~grupo,data=datos_agrupamiento,FUN=mean)
+cl_sd <- aggregate(.~grupo,data=datos_agrupamiento,FUN=sd)
+cl_median <- aggregate(.~grupo,data=datos_agrupamiento,FUN=median)
+```
+
+
+### Resumen de los grupos. 
+
+
+
+```{r}
+cl_medias %>%  kbl( caption = "Media en los grupos")%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+library(kableExtra)
+
+cl_median %>%  kbl( caption = "Mediana en los grupos")%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+library(kableExtra)
+
+cl_sd %>%  kbl( caption = "Desviación estándar en los grupos")%>%
+  kable_classic(full_width = F, html_font = "Cambria")
+library(kableExtra)
+```
+
+
+
+## Mapa. 
+
+
+A continuación se presentan el mapa con los barrios distinguidos por un color según el grupo: 
+
+- **Accidentabilidad Alta Crítica:** color rojo
+- **Accidentabilidad Alta Moderada:** color Naranja
+- **Accidentabilidad Moderada:** color Amarillo
+- **Accidentabilidad Baja:** color Verde
+
+
+Geograficamente se observa que los barrios que tienen una mayor accidenttabilidad se encuentran en el centro de la cuidad o son barrios de gran tamaño. Por otro lado, los barrios con menor accidentabilidad se encuentran en la periferia de la ciudad.  
+
+```{r}
+datos_agrupados <- datos_agrupamiento %>% mutate(BARRIO = x_agrupamiento$BARRIO, grupo)
+
+library(rgdal)
+library(leaflet)
+
+barrios_med <- readOGR("../Barrios de Medellín/Barrio_Vereda.shp",layer="Barrio_Vereda")
+nombres_barrios <- iconv(barrios_med@data$NOMBRE,"UTF-8","ISO_8859-1")
+barrios_mapa <- data.frame(BARRIO = nombres_barrios)
+
+datos_agrupados <- datos_agrupamiento %>% mutate(BARRIO = x_agrupamiento$BARRIO, grupo) 
+
+
+left_join(datos_agrupados,barrios_mapa, by = c("BARRIO" = "BARRIO") ) %>% 
+  mutate(color = ifelse(grupo=="Accidentabilidad Alta Crítica", "red", 
+                            ifelse(grupo == "Accidentabilidad Alta Moderada","orange",
+                                   ifelse(grupo == "Accidentabilidad Moderada", "yellow", 
+                                            "green"))))-> caracteristicas
+
+
+
+
+
+colores=caracteristicas$color
+m=leaflet(barrios_med)
+m=addTiles(m)
+m=addPolygons(m,popup=nombres_barrios)
+m=addTiles(m)
+m=addPolygons(m,popup=nombres_barrios,color=colores)
+m
+
+
+
+```
+
+
+
+
+
+
+
+
+
+## **Referencias**
+
+[1] Secretaría de Movilidad. (2014). Incidentes viales, de http://medata.gov.co/dataset/incidentes-viales
+
+[2] Autor anónimo. (2007).Expresiones Regulares : Conócelas y Piérdeles el miedo, de https://sg.com.mx/content/view/545
+
+[3] Agiragil. (2016).03_ViviendasComunaBarrioVeredaEstrato_Certificada_17122015, de https://medellin.gov.co/irj/go/km/docs/pccdesign/SubportaldelCiudadano_2/PlandeDesarrollo_0_17/Publicaciones/Shared%20Content/sisben/03_ViviendasComunaBarrioVeredaEstrato_Certificada_17122015.pdf
+
+[4] Selección de predictores: subset selection, ridge, lasso y reducción de dimensionalidad by Joaquín Amat Rodrigo, available under a Attribution 4.0 International (CC BY 4.0) at https://www.cienciadedatos.net/documentos/31_seleccion_de_predictores_subset_selection_ridge_lasso_dimension_reduction
+
+
+
