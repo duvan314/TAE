@@ -31,60 +31,46 @@ ui <- fluidPage(
              # Tab Modelo
              tabPanel(
                "Visualización",
-               fluidRow(
-                 column(
-                   8,
+               
                    # Descripcion
                    wellPanel(
                      fluidRow(
                        column(
-                         12,
-                         tags$p("La siguiente es una aplicación web de un modelo de predicción de la ocurrencia de incidentes viales en la ciudad de Medellín,
-                                    con base en los datos publicados por la Alcaldía de Medellín en el portal MeData."),
-                         tags$h4("Modo de uso:"),
-                         tags$p("Para visualizar los datos, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el botón: Enviar datos")
+                         8,
+                         tags$h1("Causa y gravedad en accidentes"),
+                         imageOutput("plotAccidentes"),
+                         tags$p("Se encuentra que la mayor causa de accidentes es por choques."),
+                         tags$p(("Los accidentes con heridos son mayormente causados por choques y otras causas."),
+                         tags$p("La frecuencia de accidentes donde involucra muertes es muy inferior comparativamente 
+                                con las demás categorías de gravedad.")
+                         
                        )
-                     ),
-                   ),
-                 ),
+                     )
+
+                 )
                ),
                wellPanel(
-                 tags$h3("Selección de Datos"),
-                 fluidRow(
-                   column(
-                     6,
-                     selectInput(
-                       inputId = "inputPeriodicidad", width = "100%",
-                       label = "Periodicidad de la serie de tiempo",
-                       choices = c(
-                         "Anual" = "0",
-                         "Mensual" = "1",
-                         "Diaria" = "2"
+                   fluidRow(
+                     column(
+                       8,
+                       tags$h1("Comportamiento de accidentes segun fechas"),
+                       imageOutput("plotPeriodicidad"),
+                       tags$p("Se visualiza que se presenta una mayor accidentabilidad los días Martes,Miércoles,jueves
+                       y viernes.Se infiere que el día viernes se presenta mayor accidentabilidad porque comienza fin de 
+                       semana provocando más movilidad en la ciudad de Medellín y el día domingo disminuye notablemente 
+                       la accidentabilidad en el cual muchas personas no laboran y hay menos flujo vehicular."),
+                       tags$p("En el mes de agosto y julio es donde el número de accidentes es superior , en julio 
+                       esto puede darse por el periodo de vacaciones y en agosto por algunos eventos relacionados 
+                       con feria de flores.En enero, abril y junio se presenta la menor accidentabilidad."),
+                       tags$p("En el año 2016 se presentó la mayor accidentabilidad, El número de accidentes para 
+                       el 2020 es bajo debido a la crisis sanitaria que afrontaba el mundo por motivos del COVID-19 
+                       y se debe tener en cuenta que los registros en este año solo son hasta el 31 de agosto."),
+                       tags$p("Durante el dia, el mayor número de accidentes ocurren en las hora pico, alrededor
+                              de las 6am, 12pm y 6pm. ")
+                              
                        )
-                     ),
+                     )
                    )
-                 ),
-                 fluidRow(
-                   column(
-                     6,
-                     selectInput(
-                       inputId = "inputTipoAcc", width = "100%",
-                       label = "Tipo de Accidente",
-                       choices = c(
-                         "Atropello" = "0",
-                         "Caída de Ocupante" = "1",
-                         "Choque" = "2",
-                         "Otro" = "3"
-                       )
-                     ),
-                   )
-                 ),
-                 dateInput("date1", "Fecha de inicio:", min = "2014-08-01", max = "2020-08-30", format = "yy/mm/dd"),
-                 dateInput("date2", "Fecha de fin:", min = "2014-08-01", max = "2020-08-30", format = "yy/mm/dd"),
-                 actionButton(inputId = "enviar", width = "100%",
-                              label = "Enviar datos",
-                              class = "btn-success"),
-               ),
              ),
              # Espacio de Predicción
              tabPanel(
@@ -220,22 +206,28 @@ server <- function(input, output) {
   observeEvent(input$enviar2, {
     output$prediccion <- renderPlot({
       plot_prediccion(input$inputTipoAccPred,input$inputPeriodicidadPred, input$date3, input$date4)
-    }
-    )
-  }
-  )
-  
-  
-  output$plot <- renderPlot({
-    hist(runif(input$n))
+    })
   })
   
-  output$table <- renderDataTable(iris,
-                                  options = list(
-                                    pageLength = 5,
-                                    initComplete = I("function(settings, json) {alert('Done.');}")
-                                  )
-  )
+  output$plotAccidentes <- renderImage({
+    return(list(
+        src = "../imagenes/plotTipoDeAccidente.png",
+        contentType = "image/png",
+        height="100%",
+        width="100%",
+        alt = "Accidentes")
+        )
+    }, deleteFile = FALSE)
+  
+  output$plotPeriodicidad <- renderImage({
+    return(list(
+      src = "../imagenes/plotPeriodicidad.png",
+      contentType = "image/png",
+      height="100%",
+      width="100%",
+      alt = "Accidentes")
+    )
+  }, deleteFile = FALSE)
   
   output$infoBarr <- renderTable({
     if (input$nombreBarrio == "TODOS") {
