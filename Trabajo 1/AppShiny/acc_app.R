@@ -3,15 +3,7 @@ library(tidyr)
 library(rlang)
 library(dplyr)
 library(caret)
-source("Predicciones.R")
-
-#ui <-                                                     
-
-
-#server <- function(input, output) 
-
-# Funcionamiento de la app
-#shinyApp(ui = ui, server = server)
+source("Modelo.R")
 
 if (FALSE) {
   # Start app in the current working directory
@@ -27,69 +19,114 @@ if (interactive()) {
   
   # Apps can be run without a server.r and ui.r file
   runApp(list(
-    ui = fluidPage(title = "Accidentalidad en Medell√≠n",
+    ui = fluidPage(title = "Accidentalidad en MedellÌn",
                    # Algunos cambios en el css de algunos elementos
-                   tags$head(
-                     tags$style(type="text/css", "body {padding-top: 70px;}"),
-                     tags$style(type="text/css","#imagen img {max-width: 100%; width: 100%; height: auto; max-height: 100%}"),
-                     tags$style("#texto_hijos{
-                                 font-size: 20px;
-                                 font-style: bold;
-                                 text-align: center;
-                                 }"),
-                     tags$style(HTML("hr {border-top: 1px solid #000000;}"))
-                   ),
-                   # Navegacion
-                   navbarPage("Accidentalidad en Medell√≠n", inverse = TRUE, position = "fixed-top",
-                              
-                              # Tab Modelo
-                              tabPanel("Visualizaci√≥n",
-                                       fluidRow(
-                                         column(8,
-                                                # Descripcion
-                                                wellPanel(
-                                                  fluidRow(
-                                                    column(12,
-                                                           tags$p("La siguiente es una aplicaci√≥n web de un modelo de predicci√≥n de la ocurrencia de incidentes viales en la ciudad de Medell√≠n, 
-                                                        con base en los datos publicados por la Alcald√≠a de Medell√≠n en el portal MeData."),
-                                                           tags$h4("Modo de uso:"),
-                                                           tags$p("Para visualizar los datos, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el bot√≥n: Enviar datos")
-                                                    )
-                                                  ),
-                                                ),
-                                         ),
-                                       ),
+         tags$head(
+           tags$style(type="text/css", "body {padding-top: 70px;}"),
+           tags$style(type="text/css","#imagen img {max-width: 100%; width: 100%; height: auto; max-height: 100%}"),
+           tags$style("#texto_hijos{
+                       font-size: 20px;
+                       font-style: bold;
+                       text-align: center;
+                       }"),
+           tags$style(HTML("hr {border-top: 1px solid #000000;}"))
+         ),
+         # Navegacion
+         navbarPage("Accidentalidad en MedellÌn", inverse = TRUE, position = "fixed-top",
+                    
+          # Tab Modelo
+          tabPanel("VisualizaciÛn",
+                   fluidRow(
+                     column(8,
+                            # Descripcion
+                            wellPanel(
+                              fluidRow(
+                                column(12,
+                                       tags$p("La siguiente es una aplicaciÛn web de un modelo de predicciÛn de la ocurrencia de incidentes viales en la ciudad de MedellÌn, 
+                                    con base en los datos publicados por la AlcaldÌa de MedellÌn en el portal MeData."),
+                                       tags$h4("Modo de uso:"),
+                                       tags$p("Para visualizar los datos, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el botÛn: Enviar datos")
+                                )
                               ),
-                              # Espacio de enlaces 
-                              tabPanel("Predicci√≥n",
-                                       tags$h4("Enlace al reporte t√©cnico"),
-                                       tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
-                                       tags$h4("Enlace al video promocional"),
-                                       tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
-                                       tags$h4("Enlace al respositorio del proyecto"),
-                                       tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
-                                       hr(),
-                                       # Referencia a los iconos usados con los hijos
-                                       HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
-                              ),
-                              
-                              tabPanel("Mapa",
-                                       tags$h4("Enlace al reporte t√©cnico"),
-                                       tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
-                                       tags$h4("Enlace al video promocional"),
-                                       tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
-                                       tags$h4("Enlace al respositorio del proyecto"),
-                                       tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
-                                       hr(),
-                                       # Referencia a los iconos usados con los hijos
-                                       HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
-                              )
+                            ),
+                     ),
                    ),
+                   wellPanel(
+                     tags$h3("SelecciÛn de Datos"),
+                     fluidRow(
+                       column(6,
+                              selectInput(inputId = "inputPeriodicidad", width = "100%",
+                                          label = "Periodicidad de la serie de tiempo", 
+                                          choices = c("Anual" ="0",
+                                                      "Mensual" = "1",
+                                                      "Diaria" = "2")),
+                       )
+                     ),
+                     fluidRow(
+                       column(6,
+                              selectInput(inputId = "inputTipoAcc", width = "100%",
+                                          label = "Tipo de Accidente", 
+                                          choices = c("Atropello" ="0",
+                                                      "CaÌda de Ocupante" = "1",
+                                                      "Choque" = "2",
+                                                      "Otro" = "3")),
+                       )
+                     ),
+                     dateInput("date1", "Fecha de inicio:", min = "2014-08-01", max = "2020-08-30", format = "yy/mm/dd"
+                     ),
+                     dateInput("date2", "Fecha de fin:", min = "2014-08-01", max = "2020-08-30", format = "yy/mm/dd"
+                     ),
+                  ),
+                   
+          ),
+          # Espacio de enlaces 
+          tabPanel("PredicciÛn",
+                   fluidRow(
+                     column(8,
+                            # Descripcion
+                            wellPanel(
+                              fluidRow(
+                                column(12,
+                                       tags$p("La siguiente es una aplicaciÛn web de un modelo de predicciÛn de la ocurrencia de incidentes viales en la ciudad de MedellÌn, 
+                                    con base en los datos publicados por la AlcaldÌa de MedellÌn en el portal MeData."),
+                                       tags$h4("Modo de uso:"),
+                                       tags$p("Para generar la predicciÛn de los datos deseados, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el botÛn: Enviar datos")
+                                )
+                              ),
+                            ),
+                     ),
+                   ),
+                   # Campos a rellenar
+                   wellPanel(
+                     tags$h3("CaracterÌsticas")),
+          ),
+          
+          tabPanel("Mapa",
+                   tags$h4("Enlace al reporte t√©cnico"),
+                   tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
+                   tags$h4("Enlace al video promocional"),
+                   tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
+                   tags$h4("Enlace al respositorio del proyecto"),
+                   tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
+                   hr(),
+                   # Referencia a los iconos usados con los hijos
+                   HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
+          ),
+          
+          tabPanel("Enlaces",
+                   tags$h4("Enlace al reporte tÈcnico"),
+                   tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
+                   tags$h4("Enlace al video promocional"),
+                   tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
+                   tags$h4("Enlace al respositorio del proyecto"),
+                   tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
+                   hr(),
+                   # Referencia a los iconos usados con los hijos
+                   HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
+          )
+         ),
     ),
-      #bootstrapPage(
-      #numericInput('n', 'Number of obs', 100),
-      #plotOutput('plot')
-    #),
+  
     server = function(input, output) {
       output$plot <- renderPlot({ hist(runif(input$n)) })
     }
@@ -98,70 +135,9 @@ if (interactive()) {
   
   # Running a Shiny app object
   app <- shinyApp(
-    ui = fluidPage(title = "Accidentalidad en Medell√≠n",
-                   # Algunos cambios en el css de algunos elementos
-                   tags$head(
-                     tags$style(type="text/css", "body {padding-top: 70px;}"),
-                     tags$style(type="text/css","#imagen img {max-width: 100%; width: 100%; height: auto; max-height: 100%}"),
-                     tags$style("#texto_hijos{
-                                 font-size: 20px;
-                                 font-style: bold;
-                                 text-align: center;
-                                 }"),
-                     tags$style(HTML("hr {border-top: 1px solid #000000;}"))
-                   ),
-                   # Navegacion
-                   navbarPage("Predicci√≥n n√∫mero de hijos", inverse = TRUE, position = "fixed-top",
-                              
-                              # Tab Modelo
-                              tabPanel("Visualizaci√≥n",
-                                       fluidRow(
-                                         column(8,
-                                                # Descripcion
-                                                wellPanel(
-                                                  fluidRow(
-                                                    column(12,
-                                                           tags$p("La siguiente es una aplicaci√≥n web de un modelo de predicci√≥n del numero de hijos en un hogar colombiano, 
-                                                        usando la m√°s reciente encuesta de calidad de vida del DANE (ECV 2019)."),
-                                                           tags$h4("Modo de uso:"),
-                                                           tags$p("Para usarla debe rellenar los campos o caracteristicas que se observan a continuaci√≥n y luego presionar el bot√≥n de enviar datos"),
-                                                           tags$p("Las opciones deben ser rellenadas con la informaci√≥n del hogar y del Jefe del hogar.")
-                                                    )
-                                                  ),
-                                                ),
-                                         ),
-                                       ),
-                              ),
-                              # Espacio de enlaces 
-                              tabPanel("Predicci√≥n",
-                                       tags$h4("Enlace al reporte t√©cnico"),
-                                       tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
-                                       tags$h4("Enlace al video promocional"),
-                                       tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
-                                       tags$h4("Enlace al respositorio del proyecto"),
-                                       tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
-                                       hr(),
-                                       # Referencia a los iconos usados con los hijos
-                                       HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
-                              ),
-                              
-                              tabPanel("Mapa",
-                                       tags$h4("Enlace al reporte t√©cnico"),
-                                       tags$a(href="https://rpubs.com/Alexitouno19/TAE-01-NatalidadColombia", icon("book"), "Reporte t√©cnico", class = "btn btn-primary"),
-                                       tags$h4("Enlace al video promocional"),
-                                       tags$a(href="https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
-                                       tags$h4("Enlace al respositorio del proyecto"),
-                                       tags$a(href="https://github.com/juanescendales/TAE-01-NatalidadColombia", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
-                                       hr(),
-                                       # Referencia a los iconos usados con los hijos
-                                       HTML('<div>Iconos dise√±ados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
-                              )
-                   ),
+    ui <- fluidPage(title = "Incidentes viales en MedellÌn"
+      
     ),
-    #bootstrapPage(
-    # numericInput('n', 'Number of obs', 100),
-    #  plotOutput('plot')
-    #),
     server = function(input, output) {
       output$plot <- renderPlot({ hist(runif(input$n)) })
     }
