@@ -43,7 +43,6 @@ ui <- fluidPage(
                                     con base en los datos publicados por la Alcaldía de Medellín en el portal MeData."),
                          tags$h4("Modo de uso:"),
                          tags$p("Para visualizar los datos, complete los campos con la temporalidad y el tipo de accidente. Luego presiona el botón: Enviar datos")
-                         
                        )
                      ),
                    ),
@@ -101,55 +100,68 @@ ui <- fluidPage(
                          tags$p("La siguiente es una aplicación web de un modelo de predicción de la ocurrencia de incidentes viales en la ciudad de Medellín,
                                     con base en los datos publicados por la Alcaldía de Medellín en el portal MeData."),
                          tags$h4("Modo de uso:"),
-                         tags$p("Para visualizar la predicción de los datos, complete los campos con la temporalidad, el tipo de accidente y las fechas (Enero-2018, Diciembre 2025). Luego presiona el botón: Enviar datos")
+                         tags$p("Para visualizar la predicción de los datos, complete los campos con la temporalidad, el tipo de accidente y las fechas (Enero 2018 - Diciembre 2019). Luego presiona el botón: Enviar datos")
                        )
                      ),
                    ),
                  ),
                ),
-               wellPanel(
+               sidebarLayout(
+               sidebarPanel(
                  tags$h3("Selección de Datos"),
                  fluidRow(
                    column(
-                     5,
+                     8,
                      selectInput(
                        inputId = "inputPeriodicidadPred", width = "100%",
                        label = "Periodicidad de la serie de tiempo",
                        choices = c(
-                         "Anual" = "0",
-                         "Mensual" = "1",
-                         "Diaria" = "2"
+                         "Anual" = "anual",
+                         "Mensual" = "mensual",
+                         "Semanal" = "semanal",
+                         "Diaria" = "diaria"
                        )
                      ),
                    )
                  ),
                  fluidRow(
                    column(
-                     5,
+                     8,
                      selectInput(
                        inputId = "inputTipoAccPred", width = "100%",
                        label = "Tipo de Accidente",
                        choices = c(
-                         "Atropello" = "0",
-                         "Caída de Ocupante" = "1",
-                         "Choque" = "2",
-                         "Otro" = "3"
+                         "Atropello" = "Atropello",
+                         "Caída de Ocupante" = "Caída Ocupante",
+                         "Choque" = "Choque",
+                         "Otro" = "Otro"
                        )
                      ),
                    )
                  ),
                  fluidRow(
                    column(
-                     5,
-                     dateInput("date3", "Fecha de inicio:", min = "2018-01-01", max = "2025-12-31", format = "yy/mm/dd"),
-                     dateInput("date4", "Fecha de fin:", min = "2018-01-01", max = "2025-12-31", format = "yy/mm/dd"),
+                     8,
+                     dateInput("date3", "Fecha de inicio:", min = "2018-01-01", max = "2019-12-31", format = "yyyy-mm-dd", startview = "decade"),
+                     dateInput("date4", "Fecha de fin:", min = "2018-01-01", max = "2019-12-31", format = "yyyy-mm-dd", startview = "decade"),
                      actionButton(inputId = "enviar2", width = "100%",
                                   label = "Enviar datos",
                                   class = "btn-success"),
                    )
                  ),
                ),
+               mainPanel(
+                 fluidRow(
+                   column(
+                     10,
+                     tags$h3(textOutput("Resultado")),
+                     plotOutput("prediccion")
+                   )
+                 )
+               )
+               )
              ),
+             
              tabPanel(
                "Mapa",
                fluidRow(
@@ -188,7 +200,19 @@ ui <- fluidPage(
                    )
                  )
                )
-             )
+             ),
+             tabPanel(
+               "Enlaces",
+               tags$h4("Enlace al reporte técnico"),
+               tags$a(href = "https://rpubs.com/duvan/AccidentabilidadMedellinTAE", icon("book"), "Reporte técnico", class = "btn btn-primary"),
+               tags$h4("Enlace al video promocional"),
+               tags$a(href = "https://youtu.be/h2PU-UY6-TY", icon("youtube"), "Video promocional", class = "btn btn-danger"),
+               tags$h4("Enlace al respositorio del proyecto"),
+               tags$a(href = "https://github.com/duvan314/TAE/tree/main/Trabajo%201", icon("github"), "Repositorio del proyecto", class = "btn", style = "background-color:#000000; color:#ffffff;"),
+               hr(),
+               # Referencia a los iconos usados con los hijos
+               HTML('<div>Iconos diseñados por <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a></div>')
+             ),
   )
 )
 
