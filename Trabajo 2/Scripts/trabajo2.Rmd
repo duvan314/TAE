@@ -1,0 +1,168 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(lubridate)
+library(forecast)
+library(car)
+library(TSA)
+library(FitAR)
+library(lmtest)
+library(kableExtra)
+
+ECM <- readRDS("../Funciones/ECM.rds")
+R2 <- readRDS("../Funciones/R2.rds")
+Result <- readRDS("../Funciones/Result.rds")
+df <- readRDS("../Datos/data.rds")
+
+```
+
+
+* Numero de isncripciones por dia de la semana y año
+
+```{r fig.height=4, fig.width=12}
+df %>%  
+  ggplot() + 
+  geom_boxplot(aes(Wday,Units, fill = Wday)) +
+  theme_light() -> p1
+
+df %>%  mutate(Year = as.factor(Year)) %>% 
+  ggplot() + geom_boxplot(aes(Year,Units,fill = Year))+
+   theme_light() -> p2
+
+gridExtra::grid.arrange(p1,p2, ncol = 2)
+```
+
+* Ahora todo junto
+
+```{r fig.height=4, fig.width=11}
+df %>%  mutate(Year = as.factor(Year)) %>% 
+  ggplot() + geom_boxplot(aes(Year,Units,fill = Wday))
+```
+* ahora en tabla
+
+```{r, message=F, warning=FALSE}
+df %>% group_by(Year, Wday) %>% 
+  summarise(n = median(Units)) %>%  spread(Wday, n)
+```
+
+
+
+* Units frente a meses
+
+```{r fig.height=4, fig.width=11}
+serie <- ts(df$Units, frequency=365, start=c(2012, 1, 1)) 
+n <- (df %>% filter(year(Date)==2012) %>% group_by(month(Date)) %>% summarise(n=n()))$n
+
+boxplot(serie ~ cycle(serie),
+        main = "producción Prendas de vestir ",
+        ylab = "producción Prendas de vestir", 
+        xlab = "Mes",
+        sub = "figura 3a", 
+        col="seashell1")
+
+```
+
+
+Al final de cada mes y cada año se existe un mayor numero de registros 
+
+### Festivos
+
+```{r}
+df %>% group_by( Wday,Holiday) %>% summarise(n = mean(Units)) %>% spread(Holiday, n)
+```
+
+
+
+```{r fig.height=4, fig.width=11}
+
+df %>% filter(Holiday == 0, Wday != "domingo") %>% 
+  ggplot(aes(Mday,Units, color = Wday)) + geom_point() +
+  geom_smooth(se = FALSE) + theme_light()-> p1
+
+df %>% filter(Holiday == 0, Wday != "domingo") %>% 
+  ggplot(aes(Yday,Units, color = Wday)) + geom_point() +
+  geom_smooth(se = FALSE) + theme_light()-> p2
+  
+
+gridExtra::grid.arrange(p1,p2, ncol = 2)
+```
+
+
+
+
+## modelo lineal vs poisson 
+
+```{r}
+f <- function(x){
+  if(x<=10){
+    y <- -(0.5*x-5)^2
+  } else if (x>20){
+    y <- (0.5*x-10)^2
+  }else{
+    y <- 0
+  }
+  return(y)
+}
+fv <- Vectorize(f)
+```
+
+
+```{r}
+
+train <- df %>% filter(Year<2017)
+test <- df %>% filter(Year==2017)
+
+```
+
+
+## Modelo Lineal 
+
+```{r}
+mod_lm <- lm(Units ~ Yday + Year + Month + Wday + Mday + Holiday, data = train)
+pred <- predict(mod_lm, test)
+fit <- fitted(mod_lm)
+real <- test$Units
+Result(fit, train$Units, pred, test$Units)
+```
+
+## Modelo Poisson
+
+```{r}
+
+mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday,data=train, family="poisson")
+pred <- predict(mod_po, test,  type="response")#+predict(d, 365)$pred
+fit <- fitted(mod_po) 
+Result(fit, train$Units, pred, test$Units)
+
+```
+
+## Modelo Poisson agregando una nueva variable
+
+```{r}
+train <- train %>% mutate(dummy = fv(Mday))
+test <- test %>% mutate(dummy = fv(Mday))
+library(kableExtra)
+mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday + dummy,data=train, family="poisson")
+pred <- predict(mod_po, test,  type="response")
+fit <- fitted(mod_po) #+d$fitted
+Result(fit, train$Units, pred, test$Units)
+
+```
+
+
+
+
+
+
+
+
+
