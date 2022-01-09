@@ -7,67 +7,154 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
+
+
 ```{r}
 rm(list = ls())
-library(tidyverse)
-library(lubridate)
-library(forecast)
-library(car)
-library(TSA)
-library(FitAR)
-library(lmtest)
-library(kableExtra)
+library(tidyverse);library(lubridate);library(forecast);
+library(car);library(TSA);library(FitAR);library(lmtest);
+library(kableExtra);library(kableExtra); library(pander); 
+library(randomForest);library(ranger)
 
-ECM <- readRDS("../Funciones/ECM.rds")
-R2 <- readRDS("../Funciones/R2.rds")
-Result <- readRDS("../Funciones/Result.rds")
-df <- readRDS("../Datos/data.rds")
-
+ECM <- readRDS("../Funciones/ECM.rds")        # función ECM
+R2 <- readRDS("../Funciones/R2.rds")          # funcion de R2
+Result <- readRDS("../Funciones/Result.rds")            #
+df <- readRDS("../Datos/data.rds")            # lectura de datos
 ```
 
 
-* Numero de isncripciones por dia de la semana y año
+## Introducción 
+
+
+
+* Datos
+
+Los datos es una serie temporal de número de vehículos registrados diariamente en el Registro Único Nacional de Tránsito (RUNT) en los años 2012 a 2017. Para el analisis y modelamiento se incluyeron algunas variables que consideramos relevante. En total, trabajaremos con un conjutno de datos que tiene **2192** observaciones y **9** variables. 
+
+Las variables son las siguientes: 
+
+* **Date:** Fecha Año/Mes/Dia.
+* **Units:** Número de vehículos registrados en el RUNT. 
+* **Year:** Año.
+* **Month:** Mes.
+* **Wday:** Dia de la semana.
+* **Mday:** Dia en el mes. 
+* **Yday:** Dia en el año.
+* **Holiday:** Indica si es festivo o no (1 para dia festivo).
+* **Colombia:** Indica si ese dia la selección colombia jugó un partido oficial de la FIFA. 
+
+-----------------------> Explicar por que se incluyeron las variables 
+
+* Estructura de la base de datos. 
+
+```{r}
+str(df)
+```
+
+## Analisis descriptivo 
+
+
+### Comportamiento de las inscripciones frente a los dias de la semana. 
+
 
 ```{r fig.height=4, fig.width=12}
+
+labs <- theme_light() +
+  theme (plot.title = element_text(hjust = 0.5, size=rel(2), face="bold", lineheight=1.5, colour="gray0"))+
+  theme(axis.title.x = element_text(face="bold", vjust=-0.5, colour="gray0", size=rel(1.7))) +
+  theme(axis.title.y = element_text(face="bold", vjust=1.5, colour="gray0", size=rel(1.7))) 
+
+
+df %>%  
+  ggplot() + 
+  geom_histogram(aes(Units, fill = Wday), alpha = 0.8)+ 
+  scale_fill_manual(values = 2:8)+
+  ggtitle("DISTRIBUCIÓN DE LOS REGISTROS RUNT") +
+  labs(x = "Registros Diarios",y = "Frecuencia") +
+  labs-> p1
+
 df %>%  
   ggplot() + 
   geom_boxplot(aes(Wday,Units, fill = Wday)) +
-  theme_light() -> p1
+  scale_fill_manual(values = 2:8)+
+  ggtitle("REGISTROS RUNT POR DIA DE LA SEMANA") +
+  labs(x = "Dia de la Semana",y = "Registros RUNT") +
+  labs-> p2
 
-df %>%  mutate(Year = as.factor(Year)) %>% 
-  ggplot() + geom_boxplot(aes(Year,Units,fill = Year))+
-   theme_light() -> p2
 
 gridExtra::grid.arrange(p1,p2, ncol = 2)
+  
+
 ```
 
-* Ahora todo junto
+### Comportamiento de las inscripciones dia y año. 
 
-```{r fig.height=4, fig.width=11}
+
+```{r fig.height=4, fig.width=12}
+
 df %>%  mutate(Year = as.factor(Year)) %>% 
-  ggplot() + geom_boxplot(aes(Year,Units,fill = Wday))
+  ggplot() + geom_boxplot(aes(Year,Units,fill = Wday))+
+  scale_fill_manual(values = 2:8)+
+  ggtitle("REGISTROS RUNT POR DIA DE LA SEMANA") +
+  labs(x = "Dia de la Semana",y = "Registros RUNT") +
+  labs
+
 ```
-* ahora en tabla
+
+
+
+* Lo anterior mostrado en una tabla 
 
 ```{r, message=F, warning=FALSE}
 df %>% group_by(Year, Wday) %>% 
-  summarise(n = median(Units)) %>%  spread(Wday, n)
+  summarise(n = median(Units)) %>%
+  spread(Wday, n) %>% kable(digits = 0, caption = "<center><strong>Mediana de regostros por año y dia</strong></center>") %>%  
+  kable_styling(font_size = 15)
+```
+
+
+```{r}
+df %>% group_by(Year, Wday) %>% 
+  summarise(n = sd(Units)) %>%
+  spread(Wday, n) %>% kable(digits = 0, caption = "<center><strong>Desviacion estandar de regostros por año y dia</strong></center>") %>%  
+  kable_styling(font_size = 15)
+```
+
+
+
+```{r fig.height=4, fig.width=12}
+
+df %>% filter(Holiday == 0, Wday != "domingo") %>% 
+  ggplot(aes(Mday,Units, color = Wday)) + geom_point() +
+  geom_smooth(se = FALSE) + theme_light()+
+    scale_fill_manual(values = 2:8)+
+  ggtitle("REGISTROS RUNT POR DIA DEL MES") +
+  labs(x = "Dia del Mes",y = "Registro RUNT") +
+  labs-> p1
+
+df %>% filter(Holiday == 0, Wday != "domingo") %>% 
+  ggplot(aes(Yday,Units, color = Wday)) + geom_point() +
+  geom_smooth(se = FALSE) + theme_light()+
+    scale_fill_manual(values = 2:8)+
+  ggtitle("REGISTROS RUNT POR DIA DEL AÑO") +
+  labs(x = "Dia del Año",y = "Registro RUNT") +
+  labs-> p2
+
+gridExtra::grid.arrange(p1,p2, ncol = 2)
 ```
 
 
 
 * Units frente a meses
 
-```{r fig.height=4, fig.width=11}
+```{r fig.height=4, fig.width=12}
 serie <- ts(df$Units, frequency=365, start=c(2012, 1, 1)) 
-n <- (df %>% filter(year(Date)==2012) %>% group_by(month(Date)) %>% summarise(n=n()))$n
 
 boxplot(serie ~ cycle(serie),
-        main = "producción Prendas de vestir ",
-        ylab = "producción Prendas de vestir", 
-        xlab = "Mes",
-        sub = "figura 3a", 
-        col="seashell1")
+        main = "Boxplot para...",
+        ylab = "Registros RUNT", 
+        xlab = "DIA",
+        col="pink")
 
 ```
 
@@ -77,90 +164,277 @@ Al final de cada mes y cada año se existe un mayor numero de registros
 ### Festivos
 
 ```{r}
-df %>% group_by( Wday,Holiday) %>% summarise(n = mean(Units)) %>% spread(Holiday, n)
+df %>% group_by( Wday,Holiday) %>% summarise(n = mean(Units)) %>% spread(Holiday, n) %>% 
+  rename("Dia Festivo" = "1", "Dia NO Festivo" = "0") %>% rename(Dia = Wday) %>% 
+  kable(digits = 0,caption = "<center><strong>Media de Registros</strong></center>") %>%  
+  kable_styling(font_size = 15)
+
 ```
 
 
-
-```{r fig.height=4, fig.width=11}
-
-df %>% filter(Holiday == 0, Wday != "domingo") %>% 
-  ggplot(aes(Mday,Units, color = Wday)) + geom_point() +
-  geom_smooth(se = FALSE) + theme_light()-> p1
-
-df %>% filter(Holiday == 0, Wday != "domingo") %>% 
-  ggplot(aes(Yday,Units, color = Wday)) + geom_point() +
-  geom_smooth(se = FALSE) + theme_light()-> p2
+```{r}
+df %>% group_by( Wday,Holiday) %>% summarise(n = quantile(Units)) %>% 
+  mutate(Cuantil = c("0 Q","1 Q", "2 Q", "3 Q", "4 Q")) %>% ungroup() %>% spread(Wday, n) %>% 
+  rename(Festivo = Holiday) %>% 
+  kable(digits = 0,caption = "<center><strong>Registros RUNT por dia</strong></center>") %>%  
+  kable_styling(font_size = 15)
   
-
-gridExtra::grid.arrange(p1,p2, ncol = 2)
 ```
 
 
 
+## Modelamiento
 
-## modelo lineal vs poisson 
-
-```{r}
-f <- function(x){
-  if(x<=10){
-    y <- -(0.5*x-5)^2
-  } else if (x>20){
-    y <- (0.5*x-10)^2
-  }else{
-    y <- 0
-  }
-  return(y)
-}
-fv <- Vectorize(f)
-```
 
 
 ```{r}
 
-train <- df %>% filter(Year<2017)
-test <- df %>% filter(Year==2017)
+train <- df %>% filter(Date<"2017-01-01")
+test <- df %>% filter(Date>="2017-01-01")
 
 ```
 
 
-## Modelo Lineal 
+### Modelo Lineal 
 
 ```{r}
 mod_lm <- lm(Units ~ Yday + Year + Month + Wday + Mday + Holiday, data = train)
-pred <- predict(mod_lm, test)
-fit <- fitted(mod_lm)
-real <- test$Units
-Result(fit, train$Units, pred, test$Units)
+pander(summary(mod_lm))
 ```
 
-## Modelo Poisson
+### Modelo Poisson
 
 ```{r}
 
 mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday,data=train, family="poisson")
-pred <- predict(mod_po, test,  type="response")#+predict(d, 365)$pred
-fit <- fitted(mod_po) 
-Result(fit, train$Units, pred, test$Units)
+pander(summary(mod_po))
+
 
 ```
 
-## Modelo Poisson agregando una nueva variable
+
+### Residuales 
+
+
+```{r fig.height=4, fig.width=12}
+par(mfrow = c(1,2))
+plot(ts(residuals(mod_lm)), main = "Residuales vs el Tiempo", ylab = "Residuo", col = "red4")
+plot(ts(residuals(mod_lm)), main = "Residuales vs el Tiempo", ylab = "Residuo", col = "red4")
+```
+
+
+### Predicción 
+
+```{r fig.height=4, fig.width=12}
+pred <- predict(mod_lm, test)
+fit <- fitted(mod_lm)
+real <- test$Units
+resul_lm <- Result(fit, train$Units, pred, test$Units)
+
+train %>% select(Units) %>% 
+  mutate(Predict = fit, data = "train") %>% 
+  rbind(test %>% 
+          select(Units) %>% 
+          mutate(Predict = pred, data = "test")) %>% 
+  ggplot() + geom_point(aes(Units, Predict, color = data)) +
+  geom_smooth(aes(Units, Predict), method = "lm", se = F, color = "red", size = .5) +
+    ggtitle("Prediccion vs Real (mod lineal)") +
+  labs-> p1
+  
+
+
+
+pred <- predict(mod_po, test,  type="response") 
+fit <- fitted(mod_po) 
+resul_po <- Result(fit, train$Units, pred, test$Units)
+
+train %>% select(Units) %>% 
+  mutate(Predict = fit, data = "train") %>% 
+  rbind(test %>% 
+          select(Units) %>% 
+          mutate(Predict = pred, data = "test")) %>% 
+  ggplot() + geom_point(aes(Units, Predict, color = data)) +
+  geom_smooth(aes(Units, Predict), method = "lm", se = F, color = "red", size = .5)+
+  ggtitle("Prediccion vs Real (mod poisson)") +
+  labs -> p2
+
+
+gridExtra::grid.arrange(p1,p2, ncol = 2)
+
+```
+
+### metricas 
 
 ```{r}
+resul_lm
+```
+
+
+```{r}
+resul_po
+```
+
+
+## Modelo Poisson agregando una nueva variable
+
+dado que el poisson fue el mejor modelo, se agregara una nueva variable y se mirará el resultado 
+
+```{r}
+fv <- readRDS("../Funciones/dv_dummy.rds")
+
 train <- train %>% mutate(dummy = fv(Mday))
 test <- test %>% mutate(dummy = fv(Mday))
-library(kableExtra)
+
 mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday + dummy,data=train, family="poisson")
+pander(summary(mod_po))
+
+```
+
+
+```{r fig.height=4, fig.width=12}
 pred <- predict(mod_po, test,  type="response")
 fit <- fitted(mod_po) #+d$fitted
 Result(fit, train$Units, pred, test$Units)
 
+train %>% select(Units) %>% 
+  mutate(Predict = fit, data = "train") %>% 
+  rbind(test %>% 
+          select(Units) %>% 
+          mutate(Predict = pred, data = "test")) %>% 
+  ggplot() + geom_point(aes(Units, Predict, color = data)) +
+  geom_smooth(aes(Units, Predict), method = "lm", se = F, color = "red", size = .5)+
+  ggtitle("Prediccion vs Real (mod poisson con dummy)") +
+  labs -> p3
+
+
+gridExtra::grid.arrange(p2,p3, ncol = 2)
+
+
+```
+
+
+
+## modelo ress
+
+Se ajustará un modelo a los resuduales para mejorar el poder de predicción 
+
+
+```{r}
+
+train_res <- train %>% mutate(res = Units-fit) %>% select(-Units, -Date, - Colombia)
+test_res <- test %>% mutate(res = Units - pred) %>% select(-Units, -Date, - Colombia)
+
+set.seed(123)
+
+# default RF model
+hyper_grid_res <- expand.grid(
+  mtry       = seq(3,7, by = 2),
+  node_size  = seq(3, 9, by = 2),
+  sampe_size = c(.55, .632, .70, .80),
+  OOB_RMSE   = 0
+)
+
+set.seed(123)
+
+for(i in 1:nrow(hyper_grid_res)) {
+  
+  # train model
+  model <- ranger(
+    formula         = res ~ ., 
+    data            = test_res, 
+    num.trees       = 305,
+    mtry            = hyper_grid_res$mtry[i],
+    min.node.size   = hyper_grid_res$node_size[i],
+    sample.fraction = hyper_grid_res$sampe_size[i],
+    seed            = 123 # Notese el seteo de la semilla
+  )
+  
+  # add OOB error to grid
+  hyper_grid_res$OOB_RMSE[i] <- sqrt(model$prediction.error)
+}
+
+hyper_grid_res %>% 
+  dplyr::arrange(OOB_RMSE) %>%
+  head(2)
+
+
 ```
 
 
 
 
+```{r}
+
+m1 <- randomForest(
+    formula         = res ~. , 
+    data            = train_res, 
+    num.trees       = 100,
+    mtry            = 7,
+    min.node.size   = 5,
+    sample.fraction = 0.8
+  )
+
+
+pred_res <- predict(m1, test_res)
+p <- ifelse(pred+pred_res<1, 0, pred+pred_res)
+Result(fit, train$Units,p , test$Units)
+```
+
+
+
+## modelo definitivo
+
+
+
+```{r}
+
+df_train <- df %>% mutate(dummy = fv(Mday))
+df_test <- readRDS("../Datos/data_2018.rds") %>% mutate(dummy = fv(Mday))
+
+mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday + dummy,data=df_train, family="poisson")
+
+fit <- fitted(mod_po)
+```
+
+### agregando el ajuste en los residuos 
+
+```{r}
+
+rbind(df_train %>% mutate(res = round(Units-fit,4)) %>% select(-Units, -Date, - Colombia),
+df_test%>% select( -Date, - Colombia) %>% mutate(res = 0))-> df_res
+df_train %>% mutate(Units,fit = round(fit,3), res = round(Units-fit,4)) %>% select(Units,fit, res)
+set.seed(12)
+
+m1 <- randomForest(formula= res ~Holiday+Month+Wday+Mday+Yday+dummy , data= df_res[df_res$Year<2018,], num.trees= 100,
+                   mtry= 7,min.node.size= 5,sample.fraction = 0.8)
+
+pred_res <- predict(m1, df_res[df_res$Year==2018,])
+
+#hist(predict(mod_po, df_test,  type="response") + pred_res)
+
+```
+
+
+## Guardar predicciones
+
+```{r}
+
+prediccion_17 <- fitted(mod_po)
+p_2018 <- predict(mod_po, df_test,  type="response") + pred_res
+prediccion_18 <- ifelse(p_2018 < 2, 0,p_2018)
+
+df_test %>% mutate(prediccion_18) %>%
+  mutate(prediccion_18 = ifelse(Wday == "domingo" | Holiday =="1", 0, prediccion_18)) ->pre_8
+
+
+prediccion_2018 <- data.frame(Fecha = df_test$Date, Prediccion = pre_8$prediccion_18)
+prediccion_12_17 <- data.frame(Fecha = df_train$Date, Prediccion = prediccion_17)
+
+
+write.table(prediccion_2018, file =  "../Predicciones/prediccion_2018.txt", sep = "," ,row.names = FALSE)
+write.table(prediccion_12_17, file = "../Predicciones/prediccion_12_17.txt", sep = ",",row.names = FALSE)
+
+```
 
 
 

@@ -15,11 +15,11 @@ holiday$Date <- ymd(holiday$Date)
 results <- read.csv("../Datos/results.csv", encoding = "UTF-8")
 results$date <- ymd(results$date)
 
-results %>%
+results %>%  
   filter(year(date)>2011, year(date)<=2018) %>%
   filter(home_team == "Colombia" | away_team == "Colombia") %>% 
   filter(home_team == "Colombia" | tournament != "Friendly") %>% 
-  select(date) %>% mutate(Colombia = 1) %>% 
+  dplyr::select(date) %>% mutate(Colombia = 1) %>% 
   rename(Date = date) -> results
 
 left_join(df, holiday,by = "Date") %>% 
@@ -41,12 +41,14 @@ df %>% mutate(Year = year(Date),
               Yday = yday(Date)) -> df
 
 df$Wday <- factor(df$Wday, levels  = c("lunes","martes","miércoles","jueves","viernes","sábado","domingo"))
+
+
+
 str(df)
 
 
 # Guardar datos -----------------------------------------------------------
 
-saveRDS(df, "../Datos/data.rds")
 
 
 # datos validación 2018 ---------------------------------------------------
@@ -78,9 +80,12 @@ ECM <- function(Y_hat, Y){
 }
 
 R2 <- function(Y_hat, Y){
-  mean <- mean(Y)
-  r <- sum((Y_hat - mean)^2)/sum((Y-mean)^2)
-  return(r)
+  
+  numerador <- (Y-Y_hat)^2
+  denominador <- (Y - mean(Y))^2
+  PseudoR2_0 <-1 - (sum(numerador)/sum(denominador))
+  
+  return(PseudoR2_0)
 }
 
 (sum((fit-mean(train$Units))^2))/(sum((train$Units-mean(test$Units))^2))
@@ -106,31 +111,28 @@ Result <- function(fit, Y_train, pred, Y_test){
 }
 
 
+## Variable para agregar 
+
+f <- function(x){
+  if(x<=10){
+    y <- -(0.5*x-5)^2
+  } else if (x>20){
+    y <- (0.5*x-10)^2
+  }else{
+    y <- 0
+  }
+  return(y)
+}
+
+
+dv_dummy <- Vectorize(f)
+
+
 
 saveRDS(ECM, "../Funciones/ECM.rds")
 saveRDS(R2, "../Funciones/R2.rds")
 saveRDS(Result, "../Funciones/Result.rds")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+saveRDS(dv_dummy, "../Funciones/dv_dummy.rds")
 
 
 

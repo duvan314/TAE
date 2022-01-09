@@ -1,0 +1,140 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+
+
+```{r}
+rm(list = ls())
+library(tidyverse);library(lubridate);library(forecast);
+library(car);library(TSA);library(FitAR);library(lmtest);
+library(kableExtra);library(kableExtra)
+
+ECM <- readRDS("../Funciones/ECM.rds")        # función ECM
+R2 <- readRDS("../Funciones/R2.rds")          # funcion de R2
+df <- readRDS("../Datos/data.rds")            # lectura de datos
+```
+
+
+## Introducción 
+
+
+
+* Datos
+
+Los datos es una serie temporal de número de vehículos registrados diariamente en el Registro Único Nacional de Tránsito (RUNT) en los años 2012 a 2017. Para el analisis y modelamiento se incluyeron algunas variables que consideramos relevante. En total, trabajaremos con un conjutno de datos que tiene **2192** observaciones y **9** variables. 
+
+Las variables son las siguientes: 
+
+* **Date:** Fecha Año/Mes/Dia.
+* **Units:** Número de vehículos registrados en el RUNT. 
+* **Year:** Año.
+* **Month:** Mes.
+* **Wday:** Dia de la semana.
+* **Mday:** Dia en el mes. 
+* **Yday:** Dia en el año.
+* **Holiday:** Indica si es festivo o no (1 para dia festivo).
+* **Colombia:** Indica si ese dia la selección colombia jugó un partido oficial de la FIFA. 
+
+-----------------------> Explicar por que se incluyeron las variables 
+
+
+
+* Estructura de la base de datos. 
+
+```{r}
+str(df)
+```
+
+## Analisis descriptivo 
+
+
+### Comportamiento de las inscripciones frente a los dias de la semana. 
+
+```{r fig.height=6, fig.width=15}
+
+labs <- theme_light() +
+  theme (plot.title = element_text(hjust = 0.5, size=rel(2), face="bold", lineheight=1.5, colour="gray0"))+
+  theme(axis.title.x = element_text(face="bold", vjust=-0.5, colour="gray0", size=rel(1.7))) +
+  theme(axis.title.y = element_text(face="bold", vjust=1.5, colour="gray0", size=rel(1.7))) 
+
+
+df %>%  
+  ggplot() + 
+  geom_histogram(aes(Units, fill = Wday), alpha = 0.8)+ 
+  scale_fill_manual(values = 2:8)+
+  ggtitle("DISTRIBUCIÓN DE LOS REGISTROS RUNT") +
+  labs(x = "Registros Diarios",y = "Frecuencia") +
+  labs-> p1
+
+df %>%  
+  ggplot() + 
+  geom_boxplot(aes(Wday,Units, fill = Wday)) +
+  scale_fill_manual(values = 2:8)+
+  ggtitle("REGISTROS RUNT POR DIA DE LA SEMANA") +
+  labs(x = "Dia de la Semana",y = "Registros Diarios") +
+  labs-> p2
+
+
+gridExtra::grid.arrange(p1,p2, ncol = 2)
+  
+
+```
+
+### Comportamiento de las inscripciones dia y año. 
+
+
+```{r fig.height=6, fig.width=15}
+
+df %>%  mutate(Year = as.factor(Year)) %>% 
+  ggplot() + geom_boxplot(aes(Year,Units,fill = Wday))+
+  scale_fill_manual(values = 2:8)+
+  ggtitle("REGISTROS RUNT POR DIA DE LA SEMANA") +
+  labs(x = "Dia de la Semana",y = "Registros Diarios") +
+  labs
+
+```
+
+
+
+### Lo anterior mostrado en una tabla 
+
+```{r fig.height=6, fig.width=15}
+df %>% group_by(Year, Wday) %>% 
+  summarise(n = median(Units)) %>%
+  
+  spread(Wday, n) %>% kable(digits = 0, caption = "<center><strong>Mediana de regostros por año y dia</strong></center>") %>%  
+  kable_styling(font_size = 15)
+```
+
+*  en desviaciones 
+
+```{r}
+df %>% group_by(Year, Wday) %>% 
+  summarise(n = sd(Units)) %>%
+  spread(Wday, n) %>% kable(digits = 0, caption = "Desviacion estandar de registros por año y dia") %>% 
+  kable_styling(font_size = 15)
+```
+
+
+
+```{r fig.height=4, fig.width=11}
+
+df %>% filter(Holiday == 0, Wday != "domingo") %>% 
+  ggplot(aes(Mday,Units, color = Wday)) + geom_point() +
+  geom_smooth(se = FALSE) + theme_light()-> p1
+
+df %>% filter(Holiday == 0, Wday != "domingo") %>% 
+  ggplot(aes(Yday,Units, color = Wday)) + geom_point() +
+  geom_smooth(se = FALSE) + theme_light()-> p2
+  
+
+gridExtra::grid.arrange(p1,p2, ncol = 2)
+```
+
+
