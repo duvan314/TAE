@@ -47,10 +47,6 @@ df$Wday <- factor(df$Wday, levels  = c("lunes","martes","miércoles","jueves","v
 str(df)
 
 
-# Guardar datos -----------------------------------------------------------
-
-
-
 # datos validación 2018 ---------------------------------------------------
 
 Date <- seq(as.Date("2018/1/1"), by = "day", length.out = 365)
@@ -66,11 +62,8 @@ data_2018 %>% left_join(holiday) %>% left_join(results) %>%
   
 names(data_2018)
 names(df)
-saveRDS(data_2018, "../Datos/data_2018.rds")
 
 
-
-# Continua el en trabajo2 -------------------------------------------------
 
 
 # Funciones ---------------------------------------------------------------
@@ -88,7 +81,6 @@ R2 <- function(Y_hat, Y){
   return(PseudoR2_0)
 }
 
-(sum((fit-mean(train$Units))^2))/(sum((train$Units-mean(test$Units))^2))
 
 
 
@@ -129,12 +121,19 @@ dv_dummy <- Vectorize(f)
 
 
 
+
+# Guardar Objetos ---------------------------------------------------------
+
+saveRDS(df, "../Datos/data.rds")         # datos de entreno
+saveRDS(data_2018, "../Datos/data_2018.rds")   # datos de prueba
+
+
+# Guardar funciones -------------------------------------------------------
+
 saveRDS(ECM, "../Funciones/ECM.rds")
 saveRDS(R2, "../Funciones/R2.rds")
 saveRDS(Result, "../Funciones/Result.rds")
 saveRDS(dv_dummy, "../Funciones/dv_dummy.rds")
 
 
-
-
-
+## Continua en Informe.Rmd

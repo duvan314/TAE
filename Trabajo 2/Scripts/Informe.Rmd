@@ -275,6 +275,11 @@ resul_po
 ```
 
 
+
+
+
+
+
 ## Modelo Poisson agregando una nueva variable
 
 dado que el poisson fue el mejor modelo, se agregara una nueva variable y se mirará el resultado 
@@ -402,7 +407,6 @@ fit <- fitted(mod_po)
 
 rbind(df_train %>% mutate(res = round(Units-fit,4)) %>% select(-Units, -Date, - Colombia),
 df_test%>% select( -Date, - Colombia) %>% mutate(res = 0))-> df_res
-df_train %>% mutate(Units,fit = round(fit,3), res = round(Units-fit,4)) %>% select(Units,fit, res)
 set.seed(12)
 
 m1 <- randomForest(formula= res ~Holiday+Month+Wday+Mday+Yday+dummy , data= df_res[df_res$Year<2018,], num.trees= 100,
@@ -424,12 +428,11 @@ p_2018 <- predict(mod_po, df_test,  type="response") + pred_res
 prediccion_18 <- ifelse(p_2018 < 2, 0,p_2018)
 
 df_test %>% mutate(prediccion_18) %>%
-  mutate(prediccion_18 = ifelse(Wday == "domingo" | Holiday =="1", 0, prediccion_18)) ->pre_8
+  mutate(prediccion_18 = ifelse(Wday == "domingo" | Holiday =="1", 0, prediccion_18)) -> pre_8
 
 
 prediccion_2018 <- data.frame(Fecha = df_test$Date, Prediccion = pre_8$prediccion_18)
 prediccion_12_17 <- data.frame(Fecha = df_train$Date, Prediccion = prediccion_17)
-
 
 write.table(prediccion_2018, file =  "../Predicciones/prediccion_2018.txt", sep = "," ,row.names = FALSE)
 write.table(prediccion_12_17, file = "../Predicciones/prediccion_12_17.txt", sep = ",",row.names = FALSE)

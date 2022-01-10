@@ -130,6 +130,7 @@ for(i in 1:nrow(hyper_grid)) {
   hyper_grid$OOB_RMSE[i] <- sqrt(model$prediction.error)
 }
 
+
 hyper_grid %>% 
   dplyr::arrange(OOB_RMSE) %>%
   head(10)
