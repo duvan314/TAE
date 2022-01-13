@@ -121,6 +121,20 @@ dv_dummy <- Vectorize(f)
 
 
 
+f_y <- function(x){
+  if(x<=15){
+    y <- -(0.7*x-10)^2
+  } else if (x>350){
+    y <- (0.2*x-350/5)^2
+  }else{
+    y <- 0
+  }
+  return(y)
+}
+
+
+dv_dummy_y <- Vectorize(f_y)
+
 
 # Guardar Objetos ---------------------------------------------------------
 
@@ -134,6 +148,7 @@ saveRDS(ECM, "../Funciones/ECM.rds")
 saveRDS(R2, "../Funciones/R2.rds")
 saveRDS(Result, "../Funciones/Result.rds")
 saveRDS(dv_dummy, "../Funciones/dv_dummy.rds")
+saveRDS(dv_dummy_y, "../Funciones/dv_dummy_y.rds")
 
 
 ## Continua en Informe.Rmd
