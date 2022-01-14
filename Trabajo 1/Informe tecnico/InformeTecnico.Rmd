@@ -3,9 +3,10 @@ title: "Informe Técnico TAE - Predicción de Accidentabilidad"
 author: "Duvan Camilo Manrique, David Santiago Espindola, Jeison Durango, Daniela vasco, Valentina Agudelo"
 date: "26/11/2021"
 output:
-  html_document: 
-    toc: yes
-  word_document: default
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -19,10 +20,12 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r}
 rm(list = ls())
 library(tidyverse);library(lubridate);library(caret);library(fastDummies)
-require(randomForest);library(ridge);library(ranger);library(psych);library(glmnet);library(rpart);require(randomForest)
+require(randomForest);library(ridge);library(ranger);library(psych);
+library(glmnet);library(rpart);require(randomForest)
 library(kableExtra);library(readxl);library(caret);library(xgboost );library(knitr );library(psych)
 ```
 
+# {.tabset}
 
 ## Planteamiento del problema
 

@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/855220/c9212ec05aa847b69592a56f5378945a
+bundleId: https://api.rpubs.com/api/v1/document/855220/c9212ec05aa847b69592a56f5378945a
+url: http://rpubs.com/duvan/855220
+when: 1642119784.91231
+lastSyncTime: 1642119784.91231

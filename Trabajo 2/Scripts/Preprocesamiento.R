@@ -116,24 +116,10 @@ f <- function(x){
   return(y)
 }
 
+plot(dv_dummy(1:30))
+
 
 dv_dummy <- Vectorize(f)
-
-
-
-f_y <- function(x){
-  if(x<=15){
-    y <- -(0.7*x-10)^2
-  } else if (x>350){
-    y <- (0.2*x-350/5)^2
-  }else{
-    y <- 0
-  }
-  return(y)
-}
-
-
-dv_dummy_y <- Vectorize(f_y)
 
 
 # Guardar Objetos ---------------------------------------------------------
