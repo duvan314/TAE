@@ -36,12 +36,12 @@ df <- readRDS("../Datos/data.rds")            # lectura de datos
 
 $\hspace{1 cm}$
 
-El Registro Único Nacional de Tránsito [RUNT](https://www.runt.com.co/Registros-runt), se define como un sistema de información que permite registrar y mantener actualizada, centralizada, autorizada y validada la misma sobre los Registros de automotores, conductores, licencias de tránsito, empresas de transporte público, infractores, accidentes de tránsito, seguros, remolques y semirremolques, maquinaría agrícola y de construcción autopropulsada y de personas naturales o jurídicas que prestan servicio al sector. 
+El Registro Único Nacional de Tránsito [RUNT](https://www.runt.com.co/Registros-runt), se define como un sistema de información que permite registrar y mantener actualizada, centralizada, autorizada y validada la misma sobre los registros de automotores, conductores, licencias de tránsito, empresas de transporte público, infractores, accidentes de tránsito, seguros, remolques y semirremolques, maquinaría agrícola y de construcción autopropulsada y de personas naturales o jurídicas que prestan servicio al sector(art. 8 y 9 de la Ley 769 de 2002 y la parte pertinente de la Ley 1005 de 2006).
 
-En este trabajo se abordará el problema de crear un modelo para predecir el número de vehículos registrados diariamente en el RUNT. Los datos es una serie temporal del número de vehículos registrados diariamente durante los años 2012 a 2017. Para el analisis y modelamiento se incluyeron algunas variables que consideramos relevante. En total, trabajaremos con un conjutno de datos que tiene **2192** observaciones y **9** variables. 
+En este trabajo se abordará el problema de crear un modelo para predecir el número de vehículos registrados diariamente en el RUNT. Los datos es una serie temporal del número de vehículos registrados diariamente durante los años 2012 a 2017. Para el análisis y modelamiento se incluyeron algunas variables que consideramos relevantes. En total, trabajaremos con un conjunto de datos que tiene **2192** observaciones y **9** variables. 
 
 
-Los datos y el codigo que se uso en estre trabajo se encuentra el siguiente repositorio [GitHub](https://github.com/duvan314/TAE/tree/main/Trabajo%202)
+Los datos y el código que se uso en este trabajo se encuentra el siguiente repositorio [GitHub](https://github.com/duvan314/TAE/tree/main/Trabajo%202)
 
 #### **Variables**
 
@@ -61,7 +61,7 @@ $\hspace{1 cm}$
 
 $\hspace{1 cm}$
 
-Las primeras 7 variables se obtienen a partir de la base de datos suministrada. La variable [*Holiday*](https://calendariohispanohablante.com/2012/calendario-colombia-2012.html)  se incorpora ya que las instalaciones donde se hacenlos tramites de registros del RUNT no laboran en dias festivos. La variable [*Colombia*](www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384) se agregó ya que esperamos que en estos días disminuya el número de Registros. 
+Las primeras 7 variables se obtienen a partir de la base de datos suministrada. La variable [*Holiday*](https://calendariohispanohablante.com/2012/calendario-colombia-2012.html)  se incorporá ya que las instalaciones donde se hacen los trámites de registros del RUNT no laboran en días festivos. La variable [*Colombia*](www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384) se agregó ya que esperamos que en estos días disminuya el número de registros. 
 
 $\hspace{1 cm}$
 
@@ -79,11 +79,11 @@ head(df) %>%
 
 ## **Analisis descriptivo** 
 
-Este módulo se presenta con la intención de poder entender los datos, identificar patrones y plantear hipótesis se presentan. 
+Este módulo se presenta con la intención de poder entender los datos, identificar patrones y plantear hipótesis. 
 
 $\hspace{1 cm}$
 
-### **Dia de la semana y año**
+### **Día de la semana y año**
 
 #### **Registros de vehiculos en el RUNT por día de la semana**
 
@@ -101,16 +101,16 @@ df %>%
   ggplot() + 
   geom_histogram(aes(Units, fill = Wday), alpha = 0.8)+ 
   scale_fill_manual(values = 2:8)+
-  ggtitle("DISTRIBUCIÓN DE LOS RegistroS RUNT") +
-  labs(x = "Registros Diarios",y = "Frecuencia") +
+  ggtitle("DIistribución de los registros RUNT") +
+  labs(x = "Registros diarios",y = "Frecuencia") +
   labs-> p1
 
 df %>%  
   ggplot() + 
   geom_boxplot(aes(Wday,Units, fill = Wday)) +
   scale_fill_manual(values = 2:8)+
-  ggtitle("RegistroS RUNT POR DIA DE LA SEMANA") +
-  labs(x = "Dia de la Semana",y = "Registros RUNT") +
+  ggtitle("Registros RUNT por día de la semana") +
+  labs(x = "Día de la semana",y = "Registros RUNT") +
   labs-> p2
 
 
@@ -119,7 +119,7 @@ gridExtra::grid.arrange(p1,p2, ncol = 2)
 
 ```
 
-Durante los días martes a viernes no se presentan disimilitudes significativas en el número de Registros, es evidente que el día sábado el número de Registros disminuyen notablemente. Ademas, la mayoría de los Registros del domingo son nulos. La caída de los Registros del dia lunes en comparación a los otros días de la semana podemos asociarlos a los festivos. Por último, para cada dia de la semana se visualizan observaciones atípicas. 
+Durante los días martes a viernes no se presentan disimilitudes significativas en el número de registros, es evidente que el día sábado el número de registros disminuyen notablemente. Además, la mayoría de los registros del domingo son nulos. La caída de los registros del día lunes en comparación a los otros días de la semana podemos asociarlos a los festivos. Por último, para cada día de la semana se visualizan observaciones atípicas. 
 
 $\hspace{1 cm}$
 
@@ -133,7 +133,7 @@ df %>%  mutate(Year = as.factor(Year)) %>%
   ggplot() + geom_boxplot(aes(Year,Units,fill = Wday))+
   scale_fill_manual(values = 2:8)+
   ggtitle("REGISTROS RUNT POR DIA DE LA SEMANA Y AÑO") +
-  labs(x = "Dia de la Semana",y = "Registros RUNT") +
+  labs(x = "Día de la semana",y = "Registros RUNT") +
   labs
 
 ```
@@ -159,7 +159,7 @@ $\hspace{1 cm}$
 #### **Desviación estándar de Registros por año y día de la semana** 
 
 
-La siguiente tabla muestra la desviación estándar en el número de Registros en función de los días de la semana y los años, se observa que el 2014 es el año con mayor variabilidad. 
+La siguiente tabla muestra la desviación estándar en el número de registros en función de los días de la semana y los años, se observa que el 2014 es el año con mayor variabilidad. 
 
 $\hspace{1 cm}$
 
@@ -181,35 +181,35 @@ df %>% filter(Holiday == 0, Wday != "domingo") %>%
   ggplot(aes(Mday,Units, color = Wday)) + geom_point() +
   geom_smooth(se = FALSE) + theme_light()+
     scale_fill_manual(values = 2:8)+
-  ggtitle("RegistroS RUNT POR DIA DEL MES") +
-  labs(x = "Día del Mes",y = "Registros RUNT") +
+  ggtitle("Registros RUNT por día del mes") +
+  labs(x = "Día del mes",y = "Registros RUNT") +
   labs-> p1
 
 df %>% filter(Holiday == 0, Wday != "domingo") %>% 
   ggplot(aes(Yday,Units, color = Wday)) + geom_point() +
   geom_smooth(se = FALSE) + theme_light()+
     scale_fill_manual(values = 2:8)+
-  ggtitle("RegistroS RUNT POR DIA DEL AÑO") +
-  labs(x = "Día del Año",y = "Registros RUNT") +
+  ggtitle("Registros RUNT por día del año") +
+  labs(x = "Día del año",y = "Registros RUNT") +
   labs-> p2
 
 gridExtra::grid.arrange(p1,p2, ncol = 2)
 ```
 
 
-En promedio la frecuencia de los registros de vehículos durante los primerios dias del mes es mas baja que durante los demas días. En contraste, la frecuencia promedio de los registros crece al final del mes. 
+En promedio la frecuencia de los registros de vehículos durante los primerios días del mes es más baja que durante los demás días. En contraste, la frecuencia promedio de los registros crece al final del mes. 
 
-El comportamiento para los días durante el año es similar al de los dias del mes, es baja al inicio, relativamente contante durante gran parte del año y alta al final. 
+El comportamiento para los días durante el año es similar al de los días del mes, es baja al inicio, relativamente constante durante gran parte del año y alta al final. 
 
 $\hspace{1 cm}$
 
 ### **Festivos**
 
-Como se habia previsto anteriormente, el número de registros los dias festivos es bajo o nulo. En las siguientes tablas se muestran algunas estadisticas que prueban la hipotesis.
+Como se había previsto anteriormente, el número de registros los días festivos es bajo o nulo. En las siguientes tablas se muestran algunas estadísticas que prueban la hipótesis.
 
 $\hspace{1 cm}$
 
-#### **Registros en dias festivos**
+#### **Registros en días festivos**
 
 $\hspace{1 cm}$
 
@@ -226,7 +226,7 @@ df %>% group_by( Wday,Holiday) %>% summarise(n = mean(Units)) %>% spread(Holiday
 
 
 
-#### **Cuantiles de días Festivos**
+#### **Cuantiles de días festivos**
 
 
 
@@ -247,16 +247,16 @@ df %>% group_by( Wday,Holiday) %>%
 ## **Modelamiento**
 
 
-Para la predicción de los registros de vehiculos en el RUNT consideramos 5 modelos. 
+Para la predicción de los registros de vehiculos diariamente en el RUNT consideramos 5 modelos:
 
 - Modelo lineal.
 - Modelo Poisson.
 - Modelo Ridge.
 - Modelo Lasso.
-- Bosque aleatorios. 
+- Bosque aleatorio. 
 
-Para escoger el mejor modelo usamos como métrica la comparación del $R^2$ de entreno y validación, es decir 
-$Min\{R^2_{train}/R^2_{Validation}\}$ Los datos de entrenamiento son los registros del *01/01/2012* a *31/12/2016* y validación los registros del 2017 y de prueba serán los datos del primer semestre del 2018. 
+Para escoger el mejor modelo usamos como métrica la comparación del $R^2$ de entreno y validación, es decir, 
+$Min\{R^2_{train}/R^2_{Validation}\}$. Los datos de entrenamiento son los registros del *01/01/2012* a *31/12/2016*, validación los registros del 2017 y de prueba serán los datos del primer semestre del 2018. 
 
 
 ```{r}
@@ -309,7 +309,7 @@ pander(summary(mod_po))
 
 
 
-#### **Modelo ridge**
+#### **Modelo Ridge**
 
 
 Para la estimación del modelo Ridge se minimiza $RSS_{Ridge}$ en función de los parámetros $\beta_j$. 
@@ -357,9 +357,9 @@ data.frame(coef = ridge.coef[,1]) %>%
 
 #### **Modelo Lasso**
 
-Para la estimación del modelo Ridge se minimiza $RSS_{Lsso}$ en función de los parametros $\beta_j$. 
+Para la estimación del modelo Lasso se minimiza $RSS_{Lasso}$ en función de los parametros $\beta_j$. 
 
-$$RSS_{Ridge}=\sum_{i=1}^n(y_i-f(x_i))^2+\lambda\sum_{i=1}^p|\beta_j|$$
+$$RSS_{Lasso}=\sum_{i=1}^n(y_i-f(x_i))^2+\lambda\sum_{i=1}^p|\beta_j|$$
 
 donde: 
 
@@ -394,7 +394,7 @@ $\hspace{1 cm}$
 
 #### **Residuales**
 
-A continuacón se presentan los residuos de cada uno de los modelos ajustados versus el tiempo. Al final de cada año todos los modelos presentan una mayor dispresión en el error de ajuste. Además, entre los años se observan ciertos picos, esto puede ser a causa de que a final de mes ocurren un mayor numero de registros. Auque los residuos de todos los modelos tiene un comportamiento similar, el modelo Poisson es el que presenta una menor varaibilidad.  
+A continuacón se presentan los residuos de cada uno de los modelos ajustados versus el tiempo. Al final de cada año todos los modelos presentan una mayor dispersión en el error de ajuste. Además, entre los años se observan ciertos picos, esto puede ser a causa de que a final de mes ocurren un mayor número de registros. Aunque los residuos de todos los modelos tienen un comportamiento similar, el modelo Poisson es el que presenta una menor variabilidad.  
 
 
 $\hspace{1 cm}$
@@ -431,7 +431,7 @@ train %>% select(Units) %>%
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% select(Units) %>% mutate(Predict = pred, data = "test")) %>% 
   ggplot() + geom_point(aes(Units, Predict, color = data)) +
-    ggtitle("Predicción vs Real (mod lineal)") +geom_abline(intercept = 0)+
+    ggtitle("Predicción vs Real (mod Lineal)") +geom_abline(intercept = 0)+
   labs-> p1
 
 
@@ -445,7 +445,7 @@ train %>% select(Units) %>%
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% select(Units) %>% mutate(Predict = pred, data = "test")) %>% 
   ggplot() + geom_point(aes(Units, Predict, color = data)) +
-  ggtitle("Predicción vs Real (mod poisson)") +geom_abline(intercept = 0)+
+  ggtitle("Predicción vs Real (mod Poisson)") +geom_abline(intercept = 0)+
   labs -> p2
 
 
@@ -477,15 +477,15 @@ gridExtra::grid.arrange(p1,p2,p3,p4, ncol = 2)
 ```
 
 
-- En general, para registros inferiores a 1500 todos los modelos presentan una sobreestimación, especialmente en el conjunto de validación. Por otro lado para las observaciones atipicas las predicciones generalmente son inferiores a los valores reales. 
+- En general, para registros inferiores a 1500 todos los modelos presentan una sobreestimación, especialmente en el conjunto de validación. Por otro lado, para las observaciones atípicas las predicciones generalmente son inferiores a los valores reales. 
 - Los modelos Lineal, Ridge y Lasso hacen predicciones negativas, las cuales dado el contexto del problema no son posibles. 
-- Por lo anterior, el modelo posion es adecuado para la predicción de los registros en el RUNT. 
+- Por lo anterior, el modelo Poisson es adecuado para la predicción de los registros en el RUNT. 
 
 $\hspace{1 cm}$
 
-#### **Metricas** 
+#### **Métricas** 
 
-Como se esperaba, el modelo Poisson es el que mejor ajuste tiene. Pues con él se obtiene uma mayor $R^2$ tanto en entreno como en validación. Ademas tiene el menor cociente $R^2_{Train}/R^2_{Validation}$. 
+Como se esperaba, el modelo Poisson es el que mejor ajuste tiene, con el se obtiene un mayor $R^2$ tanto en entreno como en validación. Además, tiene el menor cociente $R^2_{Train}/R^2_{Validation}$. 
 
 $\hspace{1 cm}$
 
@@ -505,13 +505,13 @@ R2s%>%
 
 ### **Mejorando el modelo Poisson**
 
-Dado que el poisson fue el mejor modelo, se agregará una nueva variable con la intención disminuir la brecha entre el $R^2$ de entreno y validación. 
+Dado que el Poisson fue el mejor modelo, se agregará una nueva variable con la intención de disminuir la brecha entre el $R^2$ de entreno y validación. 
 
 $\hspace{1 cm}$
 
 #### **Variable dummy**
 
-Considrando que durante los primeros dias del mes los registros en el RUNT son bajos y al final de mes son altos, se crea una función que capture este comportamiento. En este sentido, para la varaible $**\text{Mday}**$ se le aplicará la siguiente funcion. 
+Considrando que durante los primeros días del mes los registros en el RUNT son bajos y al final de mes son altos, se crea una función que capture este comportamiento. En este sentido, para la varaible $**\text{Mday}**$ se le aplicará la siguiente función. 
 
 $\hspace{1 cm}$
 
@@ -528,7 +528,7 @@ $\hspace{1 cm}$
 
 ```{r}
 fv <- readRDS("../Funciones/dv_dummy.rds")
-plot(ts(fv(1:31)), main = "Comportamiento de variable Dummy", xlab = "Dia del mes",ylab= "Valor Dummy", col = "blue4")
+plot(ts(fv(1:31)), main = "Comportamiento de variable Dummy", xlab = "Día del mes",ylab= "Valor Dummy", col = "blue4")
 ```
 
 
@@ -571,7 +571,7 @@ train %>% select(Units) %>%
           mutate(Predict = pred, data = "test")) %>% 
   ggplot() + geom_point(aes(Units, Predict, color = data)) +
   geom_abline(intercept = 0) +
-  ggtitle("Prediccion vs Real (mod poisson con dummy)") +
+  ggtitle("Prediccion vs Real (mod Poisson con dummy)") +
   labs -> p3
 
 
@@ -595,7 +595,7 @@ Result(fit, train$Units, pred, test$Units)
 
 ## **modelo res**
 
-Se ajustará un modelo a los resuduales del modelo poisson. 
+Se ajustará un modelo a los residuales del modelo Poisson. 
 
 ```{r}
 
@@ -836,12 +836,10 @@ write.table(prediccion_12_17, file = "../Predicciones/prediccion_12_17.txt", sep
 
 ## **Referencias**
 
-
-- https://calendariohispanohablante.com/2012/calendario-colombia-2012.html
+- Anónimo (2009 - 2021). https://www.runt.com.co/Registros-runt
+- Anónimo. (2015-2020).https://calendariohispanohablante.com/2012/calendario-colombia-2012.html.
+- Anónimo. www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
 - https://rpubs.com/duvan/InscipcionesRUNTTAE
-- https://www.runt.com.co/Registros-runt
-- www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
-  
 
 
 
