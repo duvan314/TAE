@@ -836,9 +836,9 @@ write.table(prediccion_12_17, file = "../Predicciones/prediccion_12_17.txt", sep
 
 ## **Referencias**
 
-- Anónimo (2009 - 2021). https://www.runt.com.co/Registros-runt
-- Anónimo. (2015-2020).https://calendariohispanohablante.com/2012/calendario-colombia-2012.html.
-- Anónimo. www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
+- Anónimo (2009 - 2021). URL https://www.runt.com.co/Registros-runt
+- Anónimo. (2015-2020). URL https://calendariohispanohablante.com/2012/calendario-colombia-2012.html.
+- Anónimo. URL www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
 - https://rpubs.com/duvan/InscipcionesRUNTTAE
 
 
