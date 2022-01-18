@@ -1,28 +1,26 @@
 ---
 title: "Predicción del número de vehículos registrados en el RUNT"
 date: "11/01/2022"
-author: "Duvan Camilo Manrique,\n David Santiago Espindola, Jeison Durango, Daniela vasco, Valentina Agudelo"
-output: 
-  html_document:
-    theme: journal 
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    collapsed: false
-    smooth_scroll: false
+author: 
+
+- "David Santiago Espindola"
+- "Duvan Camilo Manrique"
+- "Jeison Durango"
+- "Daniela vasco"
+- "Valentina Agudelo"
+
+output: rmdformats::readthedown
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
-# {.tabset}
-
-## __Introducción__
 
 
 ```{r}
 rm(list = ls())
+library(reticulate)
 library(tidyverse);library(lubridate);library(forecast);
 library(car);library(TSA);library(FitAR);library(lmtest);
 library(kableExtra);library(kableExtra); library(pander); 
@@ -34,6 +32,9 @@ Result <- readRDS("../Funciones/Result.rds")            #
 df <- readRDS("../Datos/data.rds")            # lectura de datos
 ```
 
+
+# **Introducción**
+
 $\hspace{1 cm}$
 
 El Registro Único Nacional de Tránsito [RUNT](https://www.runt.com.co/Registros-runt), se define como un sistema de información que permite registrar y mantener actualizada, centralizada, autorizada y validada la misma sobre los Registros de automotores, conductores, licencias de tránsito, empresas de transporte público, infractores, accidentes de tránsito, seguros, remolques y semirremolques, maquinaría agrícola y de construcción autopropulsada y de personas naturales o jurídicas que prestan servicio al sector. 
@@ -43,7 +44,7 @@ En este trabajo se abordará el problema de crear un modelo para predecir el nú
 
 Los datos y el codigo que se uso en estre trabajo se encuentra el siguiente repositorio [GitHub](https://github.com/duvan314/TAE/tree/main/Trabajo%202)
 
-#### **Variables**
+## **Variables**
 
 Las variables que se considerarán para el modelo son las siguientes: 
 
@@ -65,7 +66,7 @@ Las primeras 7 variables se obtienen a partir de la base de datos suministrada. 
 
 $\hspace{1 cm}$
 
-#### **Encabezado de la base de datos.** 
+## **Encabezado de la base de datos.** 
 
 $\hspace{1 cm}$
 
@@ -76,16 +77,29 @@ head(df) %>%
 ```
 
 
+```{python}
+import pandas as pd
+import pyreadr
 
-## **Analisis descriptivo** 
+result = pyreadr.read_r('../Datos/data.rds')
+df = result[None]
+
+```
+
+
+
+
+
+
+# **Analisis descriptivo** 
 
 Este módulo se presenta con la intención de poder entender los datos, identificar patrones y plantear hipótesis se presentan. 
 
 $\hspace{1 cm}$
 
-### **Dia de la semana y año**
+## **Dia de la semana y año**
 
-#### **Registros de vehiculos en el RUNT por día de la semana**
+### **Registros de vehiculos en el RUNT por día de la semana**
 
 $\hspace{1 cm}$
 
@@ -123,7 +137,7 @@ Durante los días martes a viernes no se presentan disimilitudes significativas 
 
 $\hspace{1 cm}$
 
-#### **Registros de vehiculos en el RUNT por día y año**
+## **Registros de vehiculos en el RUNT por día y año**
 
 $\hspace{1 cm}$
 
@@ -142,7 +156,7 @@ df %>%  mutate(Year = as.factor(Year)) %>%
 Para cada año se observa el mismo comportamiento visto en el item anterior, sin embargo hay una tendencia decreciente en función del año. Las cajas de los primeros años obedecen a un mayor número de registros. 
 
 
-#### **Lo anterior mostrado en una tabla** 
+### **Lo anterior mostrado en una tabla** 
 
 $\hspace{1 cm}$
 
@@ -156,7 +170,7 @@ df %>% group_by(Year, Wday) %>%
 
 $\hspace{1 cm}$
 
-#### **Desviación estándar de Registros por año y día de la semana** 
+### **Desviación estándar de Registros por año y día de la semana** 
 
 
 La siguiente tabla muestra la desviación estándar en el número de Registros en función de los días de la semana y los años, se observa que el 2014 es el año con mayor variabilidad. 
@@ -171,7 +185,7 @@ df %>% group_by(Year, Wday) %>%
 
 $\hspace{1 cm}$
 
-### **Registros durante mes y año**
+## **Registros durante mes y año**
 
 $\hspace{1 cm}$
 
@@ -203,13 +217,13 @@ El comportamiento para los días durante el año es similar al de los dias del m
 
 $\hspace{1 cm}$
 
-### **Festivos**
+## **Festivos**
 
 Como se habia previsto anteriormente, el número de registros los dias festivos es bajo o nulo. En las siguientes tablas se muestran algunas estadisticas que prueban la hipotesis.
 
 $\hspace{1 cm}$
 
-#### **Registros en dias festivos**
+### **Registros en dias festivos**
 
 $\hspace{1 cm}$
 
@@ -226,7 +240,7 @@ df %>% group_by( Wday,Holiday) %>% summarise(n = mean(Units)) %>% spread(Holiday
 
 
 
-#### **Cuantiles de días Festivos**
+### **Cuantiles de días Festivos**
 
 
 
@@ -244,7 +258,7 @@ df %>% group_by( Wday,Holiday) %>%
 
 
  
-## **Modelamiento**
+# **Modelamiento**
 
 
 Para la predicción de los registros de vehiculos en el RUNT consideramos 5 modelos. 
@@ -253,7 +267,6 @@ Para la predicción de los registros de vehiculos en el RUNT consideramos 5 mode
 - Modelo Poisson.
 - Modelo Ridge.
 - Modelo Lasso.
-- Bosque aleatorios. 
 
 Para escoger el mejor modelo usamos como métrica la comparación del $R^2$ de entreno y validación, es decir 
 $Min\{R^2_{train}/R^2_{Validation}\}$ Los datos de entrenamiento son los registros del *01/01/2012* a *31/12/2016* y validación los registros del 2017 y de prueba serán los datos del primer semestre del 2018. 
@@ -265,9 +278,9 @@ train <- df %>% filter(Date<"2017-01-01")
 test <- df %>% filter(Date>="2017-01-01")
 ```
 
-### **Modelos**
 
-#### **Modelo Lineal** 
+
+## **Modelo Lineal** 
 
 El modelo a ajustar es el siguiente: 
 
@@ -275,18 +288,19 @@ $$\text{Units}_t = \beta_0+\beta_1\text{Yday}_t+\beta_2\text{Year}_t+\beta_{3}\t
 \beta_{4}\text{Wday}_{4}+\beta_5\text{Mday}_t+\beta_6\text{Holiday}_t+\beta_7\text{Colombia}_t + \epsilon_t$$
 
 
-##### **Resumen del modelo Lineal**
+### **Resumen del modelo Lineal**
 
 $\hspace{1 cm}$
 
 ```{r}
+
 mod_lm <- lm(Units ~ Yday + Year + Month + Wday + Mday + Holiday + Colombia, data = train)
 pander(summary(mod_lm))
 ```
 
 
 
-#### **Modelo Poisson**
+## **Modelo Poisson**
 
 
 El modelo a ajustar es el siguiente:
@@ -296,7 +310,7 @@ $$log(\text{Units}_t) = \beta_0+\beta_1\text{Yday}_t+\beta_2\text{Year}_t+\beta_
 
 
 
-##### **Resumen del modelo Poisson**
+### **Resumen del modelo Poisson**
 
 $\hspace{1 cm}$
 
@@ -305,11 +319,12 @@ $\hspace{1 cm}$
 mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday,data=train, family="poisson")
 pander(summary(mod_po))
 
+
 ```
 
 
 
-#### **Modelo ridge**
+## **Modelo ridge**
 
 
 Para la estimación del modelo Ridge se minimiza $RSS_{Ridge}$ en función de los parámetros $\beta_j$. 
@@ -324,7 +339,7 @@ $$f(x_i) =\beta_0+\beta_1\text{Yday}_t+\beta_2\text{Year}_t+\beta_{3,k}\text{Mon
 $\hspace{1 cm}$
 
 
-#### **Coeficientes modelo Ridge**
+### **Coeficientes modelo Ridge**
 
 $\hspace{1 cm}$
 
@@ -355,7 +370,7 @@ data.frame(coef = ridge.coef[,1]) %>%
 
 
 
-#### **Modelo Lasso**
+## **Modelo Lasso**
 
 Para la estimación del modelo Ridge se minimiza $RSS_{Lsso}$ en función de los parametros $\beta_j$. 
 
@@ -369,7 +384,7 @@ $$f(x_i) =\beta_0+\beta_1\text{Yday}_t+\beta_2\text{Year}_t+\beta_{3}\text{Month
 $\hspace{1 cm}$
 
 
-##### **Coeficientes modelo Lasso**
+### **Coeficientes modelo Lasso**
 
 $\hspace{1 cm}$
 
@@ -378,7 +393,7 @@ $\hspace{1 cm}$
 lasso.mod<-glmnet(x_train,y_train,alpha= 1, lambda=gridz)
 cv.out<-cv.glmnet(x_train, y_train, alpha=1)
 bestlam<-cv.out$lambda.min
-out<-glmnet (x,y,alpha=1)
+out<-glmnet (x_train,y_train,alpha=1)
 lasso.coef<-predict(out,type="coefficients",s=bestlam)
 
 data.frame(coef = lasso.coef[,1]) %>% 
@@ -390,9 +405,9 @@ data.frame(coef = lasso.coef[,1]) %>%
 
 $\hspace{1 cm}$
 
-### **Residuos y ajuste**
+## **Residuos y ajuste**
 
-#### **Residuales**
+### **Residuales**
 
 A continuacón se presentan los residuos de cada uno de los modelos ajustados versus el tiempo. Al final de cada año todos los modelos presentan una mayor dispresión en el error de ajuste. Además, entre los años se observan ciertos picos, esto puede ser a causa de que a final de mes ocurren un mayor numero de registros. Auque los residuos de todos los modelos tiene un comportamiento similar, el modelo Poisson es el que presenta una menor varaibilidad.  
 
@@ -415,7 +430,7 @@ plot(ts(lasso_res, frequency = 365, start = c(2012)), main = "Residuales vs el T
 $\hspace{1 cm}$
 
 
-#### **Registros RUNT vs Predicciones** 
+### **Registros RUNT vs Predicciones** 
 
 $\hspace{1 cm}$
 
@@ -437,7 +452,7 @@ train %>% select(Units) %>%
 
 pred <- predict(mod_po, test,  type="response") 
 fit <- predict(mod_po, train,  type="response")
-resul_po <- Result(fit, train, pred, test$Units)
+resul_po <- Result(fit, train$Units, pred, test$Units)
 
 R2_po <- c(R2(fit, train$Units),R2(pred, test$Units), R2(fit, train$Units)/R2(pred, test$Units))
 
@@ -451,7 +466,9 @@ train %>% select(Units) %>%
 
 pred <- predict(ridge.mod, s=bestlam,newx= x_test)
 fit <- predict(ridge.mod, s=bestlam,newx= x_train)
-R2_Rd <- c(R2(fit, train$Units),R2(pred, test$Units), R2(fit, train$Units)/R2(pred, test$Units))
+
+
+R2_Rd <- c(R2(fit[,1], y_train),R2(pred[,1], y_test), R2(fit[,1], y_train)/R2(pred[,1], y_test))
 train %>% select(Units) %>% 
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% select(Units) %>% mutate(Predict = pred, data = "test")) %>% 
@@ -463,7 +480,7 @@ train %>% select(Units) %>%
 pred <- predict(lasso.mod, s=bestlam,newx= x_test)
 fit <- predict(lasso.mod, s=bestlam,newx= x_train)
 
-R2_Ls <- c(R2(fit, train$Units),R2(pred, test$Units), R2(fit, train$Units)/R2(pred, test$Units))
+R2_Ls <- c(R2(fit[,1], y_train),R2(pred[,1], y_test), R2(fit[,1], y_train)/R2(pred[,1], y_test))
 
 train %>% select(Units) %>% 
   mutate(Predict = fit, data = "train") %>% 
@@ -477,13 +494,33 @@ gridExtra::grid.arrange(p1,p2,p3,p4, ncol = 2)
 ```
 
 
+```{r}
+pred <- predict(mod_lm, test) 
+fit <- predict(mod_lm, train)
+
+sum((pred-mean(test$Units))^2)/
+sum((test$Units-mean(test$Units))^2)
+
+sum((fit-mean(train$Units))^2)/
+sum((train$Units-mean(train$Units))^2)
+
+
+1-(sum((test$Units-pred)^2)/
+sum((test$Units-mean(test$Units))^2))
+
+1-(sum((train$Units-fit)^2)/
+sum((train$Units-mean(train$Units))^2))
+
+```
+
+
 - En general, para registros inferiores a 1500 todos los modelos presentan una sobreestimación, especialmente en el conjunto de validación. Por otro lado para las observaciones atipicas las predicciones generalmente son inferiores a los valores reales. 
 - Los modelos Lineal, Ridge y Lasso hacen predicciones negativas, las cuales dado el contexto del problema no son posibles. 
 - Por lo anterior, el modelo posion es adecuado para la predicción de los registros en el RUNT. 
 
 $\hspace{1 cm}$
 
-#### **Metricas** 
+## **Metricas** 
 
 Como se esperaba, el modelo Poisson es el que mejor ajuste tiene. Pues con él se obtiene uma mayor $R^2$ tanto en entreno como en validación. Ademas tiene el menor cociente $R^2_{Train}/R^2_{Validation}$. 
 
@@ -503,13 +540,16 @@ R2s%>%
 
 
 
-### **Mejorando el modelo Poisson**
+
+
+
+## **Mejorando el modelo Poisson**
 
 Dado que el poisson fue el mejor modelo, se agregará una nueva variable con la intención disminuir la brecha entre el $R^2$ de entreno y validación. 
 
 $\hspace{1 cm}$
 
-#### **Variable dummy**
+### **Variable dummy**
 
 Considrando que durante los primeros dias del mes los registros en el RUNT son bajos y al final de mes son altos, se crea una función que capture este comportamiento. En este sentido, para la varaible $**\text{Mday}**$ se le aplicará la siguiente funcion. 
 
@@ -533,69 +573,98 @@ plot(ts(fv(1:31)), main = "Comportamiento de variable Dummy", xlab = "Dia del me
 
 
 
-#### **Modelo Poisson con la nueva variable**
+## **Modelo Poisson con la nueva variable**
 
 
 El modelo a ajustar es el siguiente:
 
 $$log(\text{Units}_t) = \beta_0+\beta_1\text{Yday}_t+\beta_2\text{Year}_t+\beta_{3,k}\text{Month}_{t,k}+
-\beta_{4,k}\text{Wday}_{4,k}+\beta_5\text{Mday}_t+\beta_6\text{Holiday}_t+\beta_7\text{Colombia}_t+\beta_8\text{Dummy}_t$$
+\beta_{4,k}\text{Wday}_{4,k}+\beta_5\text{Mday}_t+\beta_6\text{Holiday}_t+\beta_8\text{Dummy}_t$$
 
 
-##### **Resumen del modelo**
+### **Resumen del modelo**
 
 $\hspace{1 cm}$
 
 ```{r fig.width=15}
+df <- df %>% mutate(Max = ifelse(Mday>29, "1", "0")) %>% 
+  mutate(Max2 = ifelse(Yday>364, "1", "0")) %>% 
+  mutate(Max = ifelse(Holiday == "1","0", Max),
+         Max = ifelse(Wday == "domingo","0",Max),
+         Max2 = ifelse(Holiday == "1","0", Max2),
+         Max2 = ifelse(Wday == "domingo","0",Max2),
+         dummy = fv(Mday))
 
-train <- train %>% mutate(dummy = fv(Mday))
-test <- test %>% mutate(dummy = fv(Mday)  )
-mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday +Colombia+ dummy,data=train, family="poisson")
+train <- df %>% filter(Date<"2017-01-01")
+test <- df %>% filter(Date>="2017-01-01") 
+
+
+mod_po2 <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday+dummy,data=train, family="poisson")
+
+
+
 pander(summary(mod_po))
 
+fit <- fitted(mod_po2)
+pred <- predict(mod_po2, test,  type="response")
+
+
 ```
 
 
+### **Comparando los dos modelos Poisson**
 
-#### **Comparando los dos modelos Poisson**
+Al ajustar el modelo Poisson con una variable dummy, visualmente se aprecia una reducción en la varianza. Sin embargo, aun el modelo se equivoca el resultado de final de año.
 
 ```{r fig.height=6, fig.width=15}
-pred <- predict(mod_po, test,  type="response")
-fit <- fitted(mod_po) #+d$fitted
-
-
-train %>% select(Units) %>% 
-  mutate(Predict = fit, data = "train") %>% 
-  rbind(test %>% 
-          select(Units) %>% 
-          mutate(Predict = pred, data = "test")) %>% 
-  ggplot() + geom_point(aes(Units, Predict, color = data)) +
-  geom_abline(intercept = 0) +
-  ggtitle("Prediccion vs Real (mod poisson con dummy)") +
-  labs -> p3
-
-
-gridExtra::grid.arrange(p2,p3, ncol = 2)
-
+par(mfrow = c(1,2))
+plot(ts(residuals(mod_po), frequency = 365, start = c(2012)), 
+     main = "Residuales vs el Tiempo (mod Lineal)",
+     ylab = "Residuo", col = "red4", ylim = c(-40,40))
+plot(ts(residuals(mod_po2), frequency = 365, start = c(2012)), 
+     main = "Residuales vs el Tiempo (mod Poisson 2)", 
+     ylab = "Residuo", col = "red4", ylim = c(-40,40))
 ```
 
 
-### **ECM y R2 para el modelo Poisson**
+## **ECM y R2 para el modelo Poisson**
 
-Al agregar la variable Dummy al modelo se consigue mejorar el $R2$ de entreno y validación.
+Al agregar la variable dummy al modelo se consigue mejorar el $R2$ de validación, sim embargo se baja en un $2\%$ el $R^2$ de entreno. además, la nueva variable logra disminuir el ratio $Min\{R^2_{train}/R^2_{Validation}\}$.
 
 
 ```{r}
-Result(fit, train$Units, pred, test$Units)
+
+fit <- fitted(mod_po2)
+pred <- predict(mod_po2, test,  type="response")
+Result(fit,
+       train$Units,
+       pred, test$Units)
+
 ```
 
 
 
 
 
-## **modelo res**
+# **modelo Residuos**
 
-Se ajustará un modelo a los resuduales del modelo poisson. 
+Al ser una serie de tiempo, se espera que haya un comportamiento estacional y posible correlación entre los errores. además, se observa que el modelo no es capaz de capturar los finales de año y sospechamos que al final de algunos meses. Inicialmente se propone un modelo autorregresivo (no se encuentra en este trabajo) para los residuos, sin embargo, estos modelos pierden precisión cuando se quiere predecir en un horizonte temporal alto a largo plazo. En este sentido se propone un modelo de bosques aleatorios para modelar los residuos y poder tener una mayor precisión en el conjunto de validación y de prueba. Con esto se quiere modelar la estacionalidad y no la autocorrelación.
+
+
+```{r}
+par(mfrow=c(1,2))
+plot(ts(residuals(mod_po2), frequency = 365, start = c(2012)), main = "Residuales vs el Tiempo (mod Poisson2)", ylab = "Residuo", col = "red4")
+acf(ts(residuals(mod_po2)),main = "ACF de los residuos (mod Poisson2)")
+```
+
+## Escogiendo los parametros de randomForest.
+
+Se usará la función `randomForest::randomForest()`. Esta funcion tiene varios hiper-parámetros , pero en este caso solo ajustaremos tres:
+
+* `mtry`
+* `node_size`
+* `sampe_size`
+
 
 ```{r}
 
@@ -638,184 +707,73 @@ hyper_grid_res %>%
 
 ```
 
+## Resultados con Random Forest. 
 
+Modelando los residuos se puede capturar algunos comportamientos y patrones que no fueron posibles percibir con el modelo `Poisson`, esto se puede probar con los resultados de la siguiente tabla. Pues el valor del $R^2$ de validación solo supera en un $3.3\%$ el de entreno.  
 
 
 ```{r}
+
+
 
 m1 <- randomForest(
     formula         = res ~. , 
     data            = train_res, 
     num.trees       = 300,
-    mtry            = 3,
-    min.node.size   = 3,
-    sample.fraction = 0.7
+    mtry            = 7   ,
+    min.node.size   = 7,
+    sample.fraction = 0.632	
   )
 
+pred_res_t <- predict(m1, train_res)
+pred_res   <- predict(m1, test_res)
 
-pred_res <- predict(m1, test_res)
+
+
+
+p_t <- ifelse(train$Holiday=="1" |train$Wday =="domingo", 0, fit)
+p_t <- ifelse(p_t<1, 0, p_t)
 p <- ifelse(pred+pred_res<1, 0, pred+pred_res)
-Result(fit, train$Units,p , test$Units)
+p <- ifelse(test$Holiday=="1" |test$Wday =="domingo", 0, p)
+
+Result(p_t, train$Units,p , test$Units)
 ```
 
+## modelo definitivo
 
-#### modelo definitivo
+El modelo con el cual consideramos que y el cual nos servirá para modelar los vehículos inscritos en el RUNT será: 
 
 
+$$log(\text{Units}_t) = \beta_0+\beta_1\text{Yday}_t+\beta_2\text{Year}_t+\beta_{3,k}\text{Month}_{t,k}+
+\beta_{4,k}\text{Wday}_{4,k}+\beta_5\text{Mday}_t+\beta_6\text{Holiday}_t+\beta_8\text{Dummy}_t+\epsilon_t$$
+
+Donde $\epsilon_t$ se modela con un bosque aleatorio y así corregir algunos patrones de estacionalidad que no logra capturar el modelo de regresión Poisson. además, considerando la naturaleza de los datos y dado que durante días festivos y domingos el número de registros es casi nulo en la mayoría de casos, independiente del valor que predijo esos días los volveremos ceros. 
+
+## Predicción. 
+
+A continuación, se presenta la comparación en la distribución de las predicciones. los resultados de estas se pueden consultar el siguiente link.
 
 ```{r}
 
-df_train <- df %>% mutate(dummy = fv(Mday))
-df_test <- readRDS("../Datos/data_2018.rds") %>% mutate(dummy = fv(Mday))
+df_train <- df %>% mutate(dummy = fv(Mday)) %>% select(-Max, -Max2)
 
 mod_po <-glm(Units ~ Yday+Year + Month + Wday + Mday + Holiday + dummy,data=df_train, family="poisson")
 
-fit <- fitted(mod_po)
-```
 
-#### agregando el ajuste en los residuos 
+fit <- fitted(mod_po)    
+df_test <- readRDS("../Datos/data_2018.rds") %>% mutate(dummy = fv(Mday))
 
-```{r}
+rbind(df_train %>% mutate(res = round(Units-fit,4)) %>% 
+        select(-Units, -Date, - Colombia), df_test %>% select( -Date, - Colombia) %>% mutate(res = 0))-> df_res
 
-rbind(df_train %>% mutate(res = round(Units-fit,4)) %>% select(-Units, -Date, - Colombia),
-df_test%>% select( -Date, - Colombia) %>% mutate(res = 0))-> df_res
+
 set.seed(12)
 
-m1 <- randomForest(formula= res ~Holiday+Month+Wday+Mday+Yday+dummy , data= df_res[df_res$Year<2018,], num.trees= 100,
+m1 <- randomForest(formula= res ~Holiday+Year+Month+Wday+Mday+Yday+dummy , data= df_res[df_res$Year<2018,], num.trees= 100,
                    mtry= 7,min.node.size= 5,sample.fraction = 0.8)
 
 pred_res <- predict(m1, df_res[df_res$Year==2018,])
 
-#hist(predict(mod_po, df_test,  type="response") + pred_res)
-
-```
-
-## **Random Forest**
-
-```{r}
-library(AmesHousing)
-library(rsample)     # data splitting 
-library(dplyr)       # data wrangling
-library(ranger)      # más rápida que randomforest
-library(h2o) 
-```
-
-
-
-### default rf model 
-
-```{r}
-set.seed(123)
-
-# default RF model
-m1 <- randomForest(
-  formula = Units ~ .,
-  data    = train
-)
-
-m1
-```
-
-```{r}
-# número de árboles con el menor MSE
-which.min(m1$mse)
-```
-```{r}
-sqrt(m1$mse[which.min(m1$mse)])
-```
-
-
-### default rf model 
-
-```{r}
-# names of features
-features <- setdiff(names(train), "Units")
-
-set.seed(123)
-
-m2 <- tuneRF(
-  x          = train[features],
-  y          = train$Units,
-  ntreeTry   = 350,  # número de árboles
-  mtryStart  = 5,    # valor inicial
-  stepFactor = 1.5,  # factor de paso para incremento de mtry
-  improve    = 0.01, # OBB error para si ha tenido una mejora del 1%
-  trace      = TRUE  # 
-)
-
-
-
-```
-
-
-```{r}
-hyper_grid <- expand.grid(
-  mtry       = seq(3,7, by = 2),
-  node_size  = seq(3, 9, by = 2),
-  sampe_size = c(.55, .632, .70, .80),
-  OOB_RMSE   = 0
-)
-nrow(hyper_grid)
-```
-
-
-```{r}
-for(i in 1:nrow(hyper_grid)) {
-  
-  # train model
-  model <- ranger(
-    formula         = Units ~ ., 
-    data            = test, 
-    num.trees       = 305,
-    mtry            = hyper_grid$mtry[i],
-    min.node.size   = hyper_grid$node_size[i],
-    sample.fraction = hyper_grid$sampe_size[i],
-    seed            = 123 # Notese el seteo de la semilla
-  )
-  
-  # add OOB error to grid
-  hyper_grid$OOB_RMSE[i] <- sqrt(model$prediction.error)
-}
-
-
-hyper_grid %>% 
-  dplyr::arrange(OOB_RMSE) %>%
-  head(10)
-```
-
-
-
-```{r}
-
-train %>% select(Units, Year, Month,Wday, Mday, Yday,Holiday , dummy)-> train
-model <- randomForest(
-    formula         = Units ~. , 
-    data            = train, 
-    num.trees       = 300,
-    mtry            = 5,
-    min.node.size   = 5,
-    sample.fraction = .8
-  )
-
-
-pred <- predict(model, test)
-fit <- predict(model, train)
-
-#test %>% mutate(predict = ifelse(Wday == "domingo" | Holiday == "1", 0, pred)) -> test
-#train %>% mutate(fitted  = ifelse(Wday == "domingo" | Holiday == "1", 0, fit)) -> train
-
-Result(fit, train$Units, pred, test$Units)
-
-```
-
-
-
-
-## **Guardar predicciones**
-
-
-
-```{r echo=F}
 
 prediccion_17 <- fitted(mod_po)
 p_2018 <- predict(mod_po, df_test,  type="response") + pred_res
@@ -831,18 +789,21 @@ prediccion_12_17 <- data.frame(Fecha = df_train$Date, Prediccion = prediccion_17
 write.table(prediccion_2018, file =  "../Predicciones/prediccion_2018.txt", sep = "," ,row.names = FALSE)
 write.table(prediccion_12_17, file = "../Predicciones/prediccion_12_17.txt", sep = ",",row.names = FALSE)
 
+
+prediccion_2018 %>% mutate(Data = "Test") %>%
+  rbind(prediccion_12_17 %>% mutate(Data = "Train")) %>% ggplot() +
+  geom_histogram(aes(Prediccion, fill = Data))
+
 ```
 
 
-## **Referencias**
+# **Referencias**
 
 
-- https://calendariohispanohablante.com/2012/calendario-colombia-2012.html
+- Registro Único Nacional de Tránsito.(2009 - 2021). https://www.runt.com.co/Registros-runt
+- Anónimo. (2015-2020). https://calendariohispanohablante.com/2012/calendario-colombia-2012.html.
+- Anónimo. www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
 - https://rpubs.com/duvan/InscipcionesRUNTTAE
-- https://www.runt.com.co/Registros-runt
-- www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
-  
-
 
 
 

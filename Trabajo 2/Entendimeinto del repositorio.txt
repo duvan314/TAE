@@ -1,0 +1,26 @@
+Entendimiento de las carpetas y archivos del repositorio. 
+
+
+
+En cada una de las carpetas se encuentran lo siguiente:
+
+-	Datos:
+           • FESTIVOS.xlsx : dataset que contiene los festivos en Colombia para las fechas del 2012-2018.
+           • data.rds : datos de entreno que se usaron para el modelo.
+           • data_2018.rds : datos de prueba.
+           • registros_autos_entrenamiento.xlsx : dataset que contine los registros diarios de vehículos en el RUNT. 
+           • results.csv : partidos de futbol oficiales de la FIFA de selecciones.  
+
+
+-	Funciones:
+           • Funciones para el cálculo de ECM, R2 y creación de algunas variables.
+
+
+-	Predicciones:
+           • prediccion_12_17.txt : Archivo de texto con las predicciones del 2012 al 2017. 
+           • prediccion_2018.txt : Archivo de texto con las predicciones para el 2018. 
+
+-	Scripts:
+          • Informe.Rmd : Código de R donde se encuentra el informe del trabajo. 
+          • Informe.html : salida HTML del reporte. 
+          • Preprocesamiento.R : Script de R donde se hace el preprocesamiento de datos, creación de modelos, funciones etc. 

@@ -3,6 +3,7 @@ library(tidyverse)
 library(lubridate)
 library(kableExtra)
 library(knitr)
+library(openxlsx)
 
 # Carga de datos ----------------------------------------------------------
 
@@ -16,7 +17,7 @@ results <- read.csv("../Datos/results.csv", encoding = "UTF-8")
 results$date <- ymd(results$date)
 
 results %>%  
-  filter(year(date)>2011, year(date)<=2018) %>%
+  filter(lubridate::year(date)>2011, lubridate::year(date)<=2018) %>%
   filter(home_team == "Colombia" | away_team == "Colombia") %>% 
   filter(home_team == "Colombia" | tournament != "Friendly") %>% 
   dplyr::select(date) %>% mutate(Colombia = 1) %>% 
@@ -74,26 +75,25 @@ ECM <- function(Y_hat, Y){
 
 R2 <- function(Y_hat, Y){
   
-  numerador <- (Y-Y_hat)^2
-  denominador <- (Y - mean(Y))^2
-  PseudoR2_0 <-1 - (sum(numerador)/sum(denominador))
+  r2 <- 1-(sum((Y-Y_hat)^2)/
+             sum((Y-mean(Y))^2))
   
-  return(PseudoR2_0)
+  
+  return(r2)
 }
 
 
 
 
 Result <- function(fit, Y_train, pred, Y_test){
-  Y_train <- train$Units
-  Y_test  <- test$Units
-  ECM_train <- ECM(fit, train$Units)
-  ECM_test <- ECM(pred, test$Units)
+
+  ECM_train <- ECM(fit, Y_train)
+  ECM_test <- ECM(pred, Y_test)
   
   ECM_t <- c(ECM_train,ECM_test,ECM_test / ECM_train)
   
-  R2_train <- R2(fit, train$Units)
-  R2_test <- R2(pred, test$Units)
+  R2_train <- R2(fit, Y_train)
+  R2_test <- R2(pred, Y_test)
   R2_t <- c(R2_train, R2_test, R2_train/R2_test)
   
   d <- data.frame(ECM_t, R2_t)
@@ -107,16 +107,15 @@ Result <- function(fit, Y_train, pred, Y_test){
 
 f <- function(x){
   if(x<=10){
-    y <- -(0.5*x-5)^2
+    y <- -(0.5*x-5)^4
   } else if (x>20){
-    y <- (0.5*x-10)^2
+    y <- (0.5*x-10)^4
   }else{
     y <- 0
   }
   return(y)
 }
 
-plot(dv_dummy(1:30))
 
 
 dv_dummy <- Vectorize(f)
@@ -126,6 +125,7 @@ dv_dummy <- Vectorize(f)
 
 saveRDS(df, "../Datos/data.rds")         # datos de entreno
 saveRDS(data_2018, "../Datos/data_2018.rds")   # datos de prueba
+write.xlsx(data_2018, file = "../Datos/data_2018.xlsx")
 
 
 # Guardar funciones -------------------------------------------------------
@@ -134,7 +134,6 @@ saveRDS(ECM, "../Funciones/ECM.rds")
 saveRDS(R2, "../Funciones/R2.rds")
 saveRDS(Result, "../Funciones/Result.rds")
 saveRDS(dv_dummy, "../Funciones/dv_dummy.rds")
-saveRDS(dv_dummy_y, "../Funciones/dv_dummy_y.rds")
 
 
 ## Continua en Informe.Rmd
