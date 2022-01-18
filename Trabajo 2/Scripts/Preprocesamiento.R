@@ -85,7 +85,7 @@ R2 <- function(Y_hat, Y){
 
 
 
-Result <- function(fit, Y_train, pred, Y_test){
+Result <- function(fit, Y_train, pred, Y_test, nombre){
 
   ECM_train <- ECM(fit, Y_train)
   ECM_test <- ECM(pred, Y_test)
@@ -99,8 +99,10 @@ Result <- function(fit, Y_train, pred, Y_test){
   d <- data.frame(ECM_t, R2_t)
   rownames(d) = c("Train", "Test", "Ratio")
   colnames(d) = c("ECM", "R2")
-  return(t(d) %>% kbl(digits = 3) %>%  kable_styling(font_size = 12))
+  return(t(d) %>% kable(digits = 3, caption = nombre) )
 }
+
+
 
 
 ## Variable para agregar 

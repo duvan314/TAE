@@ -72,22 +72,9 @@ $\hspace{1 cm}$
 
 ```{r}
 head(df) %>% 
-  kable(digits = 5) %>%  
+  kable(digits = 0, caption = "<center><strong>Tabla 1. Datos</strong></center>") %>%  
   kable_styling(font_size = 15)
 ```
-
-
-```{python}
-import pandas as pd
-import pyreadr
-
-result = pyreadr.read_r('../Datos/data.rds')
-df = result[None]
-
-```
-
-
-
 
 
 
@@ -100,7 +87,6 @@ $\hspace{1 cm}$
 
 ## **Dia de la semana y año**
 
-### **Día de la semana y año**
 
 
 ### **Registros de vehiculos en el RUNT por día de la semana**
@@ -119,7 +105,7 @@ df %>%
   ggplot() + 
   geom_histogram(aes(Units, fill = Wday), alpha = 0.8)+ 
   scale_fill_manual(values = 2:8)+
-  ggtitle("DIistribución de los registros RUNT") +
+  ggtitle("Plot 1a. DIistribución de los registros RUNT") +
   labs(x = "Registros diarios",y = "Frecuencia") +
   labs-> p1
 
@@ -127,7 +113,7 @@ df %>%
   ggplot() + 
   geom_boxplot(aes(Wday,Units, fill = Wday)) +
   scale_fill_manual(values = 2:8)+
-  ggtitle("Registros RUNT por día de la semana") +
+  ggtitle("Plot 1b. Registros RUNT por día de la semana") +
   labs(x = "Día de la semana",y = "Registros RUNT") +
   labs-> p2
 
@@ -150,7 +136,7 @@ $\hspace{1 cm}$
 df %>%  mutate(Year = as.factor(Year)) %>% 
   ggplot() + geom_boxplot(aes(Year,Units,fill = Wday))+
   scale_fill_manual(values = 2:8)+
-  ggtitle("REGISTROS RUNT POR DIA DE LA SEMANA Y AÑO") +
+  ggtitle("Plot 2. REGISTROS RUNT POR DIA DE LA SEMANA Y AÑO") +
   labs(x = "Día de la semana",y = "Registros RUNT") +
   labs
 
@@ -168,7 +154,8 @@ $\hspace{1 cm}$
 ```{r, message=F, warning=FALSE}
 df %>% group_by(Year, Wday) %>% 
   summarise(n = median(Units)) %>%
-  spread(Wday, n) %>% kable(digits = 0, caption = "<center><strong>Mediana de Registros por año y día de la semana</strong></center>") %>%  
+  spread(Wday, n) %>% kable(digits = 0, 
+                            caption = "<center><strong>Tabla 2. Mediana de Registros por año y día de la semana</strong></center>") %>%  
   kable_styling(font_size = 15)
 ```
 
@@ -184,7 +171,7 @@ $\hspace{1 cm}$
 ```{r}
 df %>% group_by(Year, Wday) %>% 
   summarise(n = sd(Units)) %>% 
-  spread(Wday, n) %>% kable(digits = 0, caption = "<center><strong>Desviación estándar de Registros por año y día de la semana</strong></center>") %>% kable_styling(font_size = 15)
+  spread(Wday, n) %>% kable(digits = 0, caption = "<center><strong>tabla 3. Desviación estándar de Registros por año y día de la semana</strong></center>") %>% kable_styling(font_size = 15)
 ```
 
 $\hspace{1 cm}$
@@ -199,7 +186,7 @@ df %>% filter(Holiday == 0, Wday != "domingo") %>%
   ggplot(aes(Mday,Units, color = Wday)) + geom_point() +
   geom_smooth(se = FALSE) + theme_light()+
     scale_fill_manual(values = 2:8)+
-  ggtitle("Registros RUNT por día del mes") +
+  ggtitle("Plot 3a. Registros RUNT por día del mes") +
   labs(x = "Día del mes",y = "Registros RUNT") +
   labs-> p1
 
@@ -207,7 +194,7 @@ df %>% filter(Holiday == 0, Wday != "domingo") %>%
   ggplot(aes(Yday,Units, color = Wday)) + geom_point() +
   geom_smooth(se = FALSE) + theme_light()+
     scale_fill_manual(values = 2:8)+
-  ggtitle("Registros RUNT por día del año") +
+  ggtitle("Plot 3b. Registros RUNT por día del año") +
   labs(x = "Día del año",y = "Registros RUNT") +
   labs-> p2
 
@@ -241,7 +228,7 @@ $\hspace{1 cm}$
 ```{r}
 df %>% group_by( Wday,Holiday) %>% summarise(n = mean(Units)) %>% spread(Holiday, n) %>% 
   rename("Dia Festivo" = "1", "Dia NO Festivo" = "0") %>% rename(Dia = Wday) %>% 
-  kable(digits = 0,caption = "<center><strong>Media de Registros</strong></center>") %>%  
+  kable(digits = 0,caption = "<center><strong>Tabla 4. Media de Registros</strong></center>") %>%  
   kable_styling(font_size = 15)
 
 ```
@@ -261,7 +248,7 @@ df %>% group_by( Wday,Holiday) %>%
   summarise(n = quantile(Units)) %>% mutate(Holiday = ifelse(Holiday == "1", "SI", "NO"))%>% 
   mutate(Cuantil = c("0 Q","1 Q", "2 Q", "3 Q", "4 Q")) %>% ungroup() %>% spread(Wday, n)%>% 
   rename(Festivo = Holiday) %>% 
-  kable(digits = 0,caption = "<center><strong>Registros RUNT por día</strong></center>") %>%  
+  kable(digits = 0,caption = "<center><strong>Tabla 5. Registros RUNT por día</strong></center>") %>%  
   kable_styling(font_size = 15)
   
 ```
@@ -280,8 +267,6 @@ Para la predicción de los registros de vehiculos diariamente en el RUNT conside
 - Modelo Ridge.
 - Modelo Lasso.
 
-
-- Bosque aleatorio. 
 
 
 Para escoger el mejor modelo usamos como métrica la comparación del $R^2$ de entreno y validación, es decir, 
@@ -384,7 +369,7 @@ bestlam<-cv.out$lambda.min
 out<-glmnet (x,y,alpha=0)
 ridge.coef<-predict(out,type="coefficients",s=bestlam)
 data.frame(coef = ridge.coef[,1]) %>% 
-  kable(digits = 5,caption = "<center><strong>Coeficientes Modelo Ridge</strong></center>") %>%  
+  kable(digits = 5,caption = "<center><strong>Tabla 6. Coeficientes Modelo Ridge</strong></center>") %>%  
   kable_styling(font_size = 15)
 ```
 
@@ -417,7 +402,7 @@ out<-glmnet (x_train,y_train,alpha=1)
 lasso.coef<-predict(out,type="coefficients",s=bestlam)
 
 data.frame(coef = lasso.coef[,1]) %>% 
-  kable(digits = 5,caption = "<center><strong>Coeficientes Modelo Lasso</strong></center>") %>%  
+  kable(digits = 5,caption = "<center><strong>Tabla 7. Coeficientes Modelo Lasso</strong></center>") %>%  
   kable_styling(font_size = 15)
 
 
@@ -441,10 +426,12 @@ lasso_res <-y_train - predict(lasso.mod, s=bestlam,newx = x_train)
 
 par(mfrow = c(2,2))
 
-plot(ts(residuals(mod_lm), frequency = 365, start = c(2012)), main = "Residuales vs el Tiempo (mod Lineal)", ylab = "Residuo", col = "red4")
-plot(ts(residuals(mod_po), frequency = 365, start = c(2012)), main = "Residuales vs el Tiempo (mod Poisson)", ylab = "Residuo", col = "red4")
-plot(ts(ridge_res, frequency = 365, start = c(2012)), main = "Residuales vs el Tiempo, (mod Ridge)", ylab = "Residuo", col = "red4")
-plot(ts(lasso_res, frequency = 365, start = c(2012)), main = "Residuales vs el Tiempo (mod Lasso)", ylab = "Residuo", col = "red4")
+plot(ts(residuals(mod_lm), frequency = 365, start = c(2012)),
+     main = "Plot 4a. Residuales vs el Tiempo (mod Lineal)", ylab = "Residuo", col = "red4")
+plot(ts(residuals(mod_po), frequency = 365, start = c(2012)),
+     main = "Plot 4b. Residuales vs el Tiempo (mod Poisson)", ylab = "Residuo", col = "red4")
+plot(ts(ridge_res, frequency = 365, start = c(2012)), main = "Plot 4c. Residuales vs el Tiempo, (mod Ridge)", ylab = "Residuo", col = "red4")
+plot(ts(lasso_res, frequency = 365, start = c(2012)), main = "Plot 4d. Residuales vs el Tiempo (mod Lasso)", ylab = "Residuo", col = "red4")
 
 ```
 $\hspace{1 cm}$
@@ -458,7 +445,6 @@ $\hspace{1 cm}$
 pred <- predict(mod_lm, test)
 fit <- fitted(mod_lm)
 real <- test$Units
-resul_lm <- Result(fit, train$Units, pred, test$Units)
 R2_lm <- c(R2(fit, train$Units),R2(pred, test$Units), R2(fit, train$Units)/R2(pred, test$Units))
 
 
@@ -466,13 +452,12 @@ train %>% select(Units) %>%
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% select(Units) %>% mutate(Predict = pred, data = "test")) %>% 
   ggplot() + geom_point(aes(Units, Predict, color = data)) +
-    ggtitle("Predicción vs Real (mod Lineal)") +geom_abline(intercept = 0)+
+    ggtitle("Plot 5a. Predicción vs Real (mod Lineal)") +geom_abline(intercept = 0)+
   labs-> p1
 
 
 pred <- predict(mod_po, test,  type="response") 
 fit <- predict(mod_po, train,  type="response")
-resul_po <- Result(fit, train$Units, pred, test$Units)
 
 R2_po <- c(R2(fit, train$Units),R2(pred, test$Units), R2(fit, train$Units)/R2(pred, test$Units))
 
@@ -480,7 +465,7 @@ train %>% select(Units) %>%
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% select(Units) %>% mutate(Predict = pred, data = "test")) %>% 
   ggplot() + geom_point(aes(Units, Predict, color = data)) +
-  ggtitle("Predicción vs Real (mod Poisson)") +geom_abline(intercept = 0)+
+  ggtitle("Plot 5b.Predicción vs Real (mod Poisson)") +geom_abline(intercept = 0)+
   labs -> p2
 
 
@@ -493,7 +478,7 @@ train %>% select(Units) %>%
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% select(Units) %>% mutate(Predict = pred, data = "test")) %>% 
   ggplot() + geom_point(aes(Units, Predict, color = data)) +
-  ggtitle("Predicción vs Real (mod Ridge)") +geom_abline(intercept = 0)+
+  ggtitle("Plot 5c.Predicción vs Real (mod Ridge)") +geom_abline(intercept = 0)+
   labs -> p3
 
 
@@ -506,7 +491,7 @@ train %>% select(Units) %>%
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% select(Units) %>% mutate(Predict = pred, data = "test")) %>% 
   ggplot() + geom_point(aes(Units, Predict, color = data)) +
-  ggtitle("Predicción vs Real (mod Lasso)") + geom_abline(intercept = 0)+
+  ggtitle("Plot 5c. Predicción vs Real (mod Lasso)") + geom_abline(intercept = 0)+
   labs -> p4
 
 gridExtra::grid.arrange(p1,p2,p3,p4, ncol = 2)
@@ -540,7 +525,7 @@ R2s <- rbind(R2_lm,R2_po,R2_Rd,R2_Ls)
 colnames(R2s) <- c("Train", "Validation", "Ratio")
 rownames(R2s) <- c("Lineal", "Poisson", "Ridge", "Lasso")
 R2s%>% 
-  kable(digits = 5,caption = "<center><strong>$R^2$ de entreno y prueba</strong></center>") %>%  
+  kable(digits = 5,caption = "<center><strong>Tabla 8. $R^2$ de entreno y prueba</strong></center>") %>%  
   kable_styling(font_size = 15)
 
 ```
@@ -577,7 +562,7 @@ $\hspace{1 cm}$
 
 ```{r}
 fv <- readRDS("../Funciones/dv_dummy.rds")
-plot(ts(fv(1:31)), main = "Comportamiento de variable Dummy", xlab = "Día del mes",ylab= "Valor Dummy", col = "blue4")
+plot(ts(fv(1:31)), main = "Plot 6.Comportamiento de variable Dummy", xlab = "Día del mes",ylab= "Valor Dummy", col = "blue4")
 ```
 
 
@@ -628,10 +613,10 @@ Al ajustar el modelo Poisson con una variable dummy, visualmente se aprecia una 
 ```{r fig.height=6, fig.width=15}
 par(mfrow = c(1,2))
 plot(ts(residuals(mod_po), frequency = 365, start = c(2012)), 
-     main = "Residuales vs el Tiempo (mod Lineal)",
+     main = "Plot 7a.Residuales vs el Tiempo (mod Lineal)",
      ylab = "Residuo", col = "red4", ylim = c(-40,40))
 plot(ts(residuals(mod_po2), frequency = 365, start = c(2012)), 
-     main = "Residuales vs el Tiempo (mod Poisson 2)", 
+     main = "Plot 7b. Residuales vs el Tiempo (mod Poisson 2)", 
      ylab = "Residuo", col = "red4", ylim = c(-40,40))
 ```
 
@@ -642,15 +627,6 @@ plot(ts(residuals(mod_po2), frequency = 365, start = c(2012)),
 Al agregar la variable dummy al modelo se consigue mejorar el $R2$ de validación, sim embargo se baja en un $2\%$ el $R^2$ de entreno. además, la nueva variable logra disminuir el ratio $Min\{R^2_{train}/R^2_{Validation}\}$.
 
 
-train %>% select(Units) %>% 
-  mutate(Predict = fit, data = "train") %>% 
-  rbind(test %>% 
-          select(Units) %>% 
-          mutate(Predict = pred, data = "test")) %>% 
-  ggplot() + geom_point(aes(Units, Predict, color = data)) +
-  geom_abline(intercept = 0) +
-  ggtitle("Prediccion vs Real (mod Poisson con dummy)") +
-  labs -> p3
 
 
 ```{r}
@@ -659,7 +635,7 @@ fit <- fitted(mod_po2)
 pred <- predict(mod_po2, test,  type="response")
 Result(fit,
        train$Units,
-       pred, test$Units)
+       pred, test$Units, nombre = "Tabla 9. ECM, R2 Modelo Poisso")
 
 ```
 
@@ -674,11 +650,11 @@ Al ser una serie de tiempo, se espera que haya un comportamiento estacional y po
 
 ```{r}
 par(mfrow=c(1,2))
-plot(ts(residuals(mod_po2), frequency = 365, start = c(2012)), main = "Residuales vs el Tiempo (mod Poisson2)", ylab = "Residuo", col = "red4")
-acf(ts(residuals(mod_po2)),main = "ACF de los residuos (mod Poisson2)")
+plot(ts(residuals(mod_po2), frequency = 365, start = c(2012)), main = "Plot 8a. Residuales vs el Tiempo (mod Poisson2)", ylab = "Residuo", col = "red4")
+acf(ts(residuals(mod_po2)),main = "Plot 8b. ACF de los residuos (mod Poisson2)")
 ```
 
-## Escogiendo los parametros de randomForest.
+## **Escogiendo los parametros de randomForest.**
 
 Se usará la función `randomForest::randomForest()`. Esta funcion tiene varios hiper-parámetros , pero en este caso solo ajustaremos tres:
 
@@ -723,12 +699,14 @@ for(i in 1:nrow(hyper_grid_res)) {
 
 hyper_grid_res %>% 
   dplyr::arrange(OOB_RMSE) %>%
-  head(2)
+  head(4) %>% 
+  kable(digits = 0, caption = "<center><strong>Tabla 10. Datos</strong></center>") %>%  
+  kable_styling(font_size = 15)
 
 
 ```
 
-## Resultados con Random Forest. 
+## **Resultados con Random Forest**. 
 
 Modelando los residuos se puede capturar algunos comportamientos y patrones que no fueron posibles percibir con el modelo `Poisson`, esto se puede probar con los resultados de la siguiente tabla. Pues el valor del $R^2$ de validación solo supera en un $3.3\%$ el de entreno.  
 
@@ -757,10 +735,10 @@ p_t <- ifelse(p_t<1, 0, p_t)
 p <- ifelse(pred+pred_res<1, 0, pred+pred_res)
 p <- ifelse(test$Holiday=="1" |test$Wday =="domingo", 0, p)
 
-Result(p_t, train$Units,p , test$Units)
+Result(p_t, train$Units,p , test$Units, nombre = "Tabla 11. ECM, R2 Modelo Poisso")
 ```
 
-## modelo definitivo
+## **Modelo definitivo**
 
 El modelo con el cual consideramos que y el cual nos servirá para modelar los vehículos inscritos en el RUNT será: 
 
@@ -770,9 +748,11 @@ $$log(\text{Units}_t) = \beta_0+\beta_1\text{Yday}_t+\beta_2\text{Year}_t+\beta_
 
 Donde $\epsilon_t$ se modela con un bosque aleatorio y así corregir algunos patrones de estacionalidad que no logra capturar el modelo de regresión Poisson. además, considerando la naturaleza de los datos y dado que durante días festivos y domingos el número de registros es casi nulo en la mayoría de casos, independiente del valor que predijo esos días los volveremos ceros. 
 
-## Predicción. 
+## **Predicción.** 
 
-A continuación, se presenta la comparación en la distribución de las predicciones. los resultados de estas se pueden consultar el siguiente link.
+Para el modelo anterior, se uso como conjunto de entreno los datos del 2012 al 2017 y de prueba el primer semestre del 2018. 
+
+A continuación, se presenta la comparación en la distribución de las predicciones. los resultados de estas se pueden consultar el siguiente [link](https://github.com/duvan314/TAE/tree/main/Trabajo%202/Predicciones).
 
 ```{r}
 
@@ -811,22 +791,56 @@ write.table(prediccion_2018, file =  "../Predicciones/prediccion_2018.txt", sep 
 write.table(prediccion_12_17, file = "../Predicciones/prediccion_12_17.txt", sep = ",",row.names = FALSE)
 
 
-prediccion_2018 %>% mutate(Data = "Test") %>%
-  rbind(prediccion_12_17 %>% mutate(Data = "Train")) %>% ggplot() +
-  geom_histogram(aes(Prediccion, fill = Data))
+prediccion_2018 %>% mutate(Data = "Test: 2012-2017") %>%
+  rbind(prediccion_12_17 %>% mutate(Data = "Train: 2018")) %>% ggplot() +
+  geom_histogram(aes(Prediccion, fill = Data)) +theme_light()+
+    scale_fill_manual(values = 2:8)+
+  ggtitle("Plot 9. Predicción Entreno y Test") +
+  labs(x = "Registros RUNT",y = "Frecuencia") +
+  labs
 
 ```
 
 
-# **Referencias**
+# **Repositorio y Referencias**
 
 
+## **Repositorio**
+
+Todo lo el codigo de este trabajo se encuentra en el repositorio de [Github](https://github.com/duvan314/TAE/tree/main/Trabajo%202), en cada una de las carpetas se encuentran lo siguiente:
+
+i. [Datos](https://github.com/duvan314/TAE/tree/main/Trabajo%202/Datos)
+
+- FESTIVOS.xlsx : dataset que contiene los festivos en Colombia para las fechas del 2012-2018.
+- data.rds : datos de entreno que se usaron para el modelo.
+- data_2018.rds : datos de prueba.
+- registros_autos_entrenamiento.xlsx : dataset que contine los registros diarios de vehículos en el RUNT. 
+- results.csv : partidos de futbol oficiales de la FIFA de selecciones.  
 
 
+ii. [Funciones](https://github.com/duvan314/TAE/tree/main/Trabajo%202/Funciones)
+
+- Funciones para el cálculo de ECM, R2 y creación de algunas variables.
+
+
+iii. [Predicciones](https://github.com/duvan314/TAE/tree/main/Trabajo%202/Predicciones)
+
+- prediccion_12_17.txt : Archivo de texto con las predicciones del 2012 al 2017. 
+- prediccion_2018.txt : Archivo de texto con las predicciones para el 2018. 
+
+iv. [Scripts](https://github.com/duvan314/TAE/tree/main/Trabajo%202/Scripts)
+
+- Informe.Rmd : Código de R donde se encuentra el informe del trabajo. 
+- Informe.html : salida HTML del reporte. 
+- Preprocesamiento.R : Script de R donde se hace el preprocesamiento de datos, creación de modelos, funciones etc. 
+
+
+## **Referencias**
 
 - Registro Único Nacional de Tránsito.(2009 - 2021). https://www.runt.com.co/Registros-runt
-- Anónimo. (2015-2020). https://calendariohispanohablante.com/2012/calendario-colombia-2012.html.
-- Anónimo. www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
+- Calendario. (2015-2020). https://calendariohispanohablante.com/2012/calendario-colombia-2012.html.
+- Datos de Futbol www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
+- Modelos Predictivos. https://fhernanb.github.io/libro_mod_pred/arb-de-regre.html
 - https://rpubs.com/duvan/InscipcionesRUNTTAE
 
 
