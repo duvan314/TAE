@@ -97,11 +97,11 @@ Este módulo se presenta con la intención de poder entender los datos, identifi
 
 $\hspace{1 cm}$
 
-<<<<<<< HEAD
+
 ## **Dia de la semana y año**
-=======
+
 ### **Día de la semana y año**
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 
 ### **Registros de vehiculos en el RUNT por día de la semana**
 
@@ -227,11 +227,11 @@ Como se había previsto anteriormente, el número de registros los días festivo
 
 $\hspace{1 cm}$
 
-<<<<<<< HEAD
+
 ### **Registros en dias festivos**
-=======
+
 #### **Registros en días festivos**
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 
 $\hspace{1 cm}$
 
@@ -248,11 +248,11 @@ df %>% group_by( Wday,Holiday) %>% summarise(n = mean(Units)) %>% spread(Holiday
 
 
 
-<<<<<<< HEAD
+
 ### **Cuantiles de días Festivos**
-=======
+
 #### **Cuantiles de días festivos**
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 
 
 
@@ -279,10 +279,10 @@ Para la predicción de los registros de vehiculos diariamente en el RUNT conside
 - Modelo Poisson.
 - Modelo Ridge.
 - Modelo Lasso.
-<<<<<<< HEAD
-=======
+
+
 - Bosque aleatorio. 
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 
 Para escoger el mejor modelo usamos como métrica la comparación del $R^2$ de entreno y validación, es decir, 
 $Min\{R^2_{train}/R^2_{Validation}\}$. Los datos de entrenamiento son los registros del *01/01/2012* a *31/12/2016*, validación los registros del 2017 y de prueba serán los datos del primer semestre del 2018. 
@@ -340,11 +340,11 @@ pander(summary(mod_po))
 
 
 
-<<<<<<< HEAD
+
 ## **Modelo ridge**
-=======
+
 #### **Modelo Ridge**
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 
 
 Para la estimación del modelo Ridge se minimiza $RSS_{Ridge}$ en función de los parámetros $\beta_j$. 
@@ -514,41 +514,22 @@ gridExtra::grid.arrange(p1,p2,p3,p4, ncol = 2)
 ```
 
 
-<<<<<<< HEAD
-```{r}
-pred <- predict(mod_lm, test) 
-fit <- predict(mod_lm, train)
-
-sum((pred-mean(test$Units))^2)/
-sum((test$Units-mean(test$Units))^2)
-
-sum((fit-mean(train$Units))^2)/
-sum((train$Units-mean(train$Units))^2)
-
-
-1-(sum((test$Units-pred)^2)/
-sum((test$Units-mean(test$Units))^2))
-
-1-(sum((train$Units-fit)^2)/
-sum((train$Units-mean(train$Units))^2))
-
-```
 
 
 - En general, para registros inferiores a 1500 todos los modelos presentan una sobreestimación, especialmente en el conjunto de validación. Por otro lado para las observaciones atipicas las predicciones generalmente son inferiores a los valores reales. 
-=======
+
 - En general, para registros inferiores a 1500 todos los modelos presentan una sobreestimación, especialmente en el conjunto de validación. Por otro lado, para las observaciones atípicas las predicciones generalmente son inferiores a los valores reales. 
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 - Los modelos Lineal, Ridge y Lasso hacen predicciones negativas, las cuales dado el contexto del problema no son posibles. 
 - Por lo anterior, el modelo Poisson es adecuado para la predicción de los registros en el RUNT. 
 
 $\hspace{1 cm}$
 
-<<<<<<< HEAD
+
 ## **Metricas** 
-=======
+
 #### **Métricas** 
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 
 Como se esperaba, el modelo Poisson es el que mejor ajuste tiene, con el se obtiene un mayor $R^2$ tanto en entreno como en validación. Además, tiene el menor cociente $R^2_{Train}/R^2_{Validation}$. 
 
@@ -655,12 +636,12 @@ plot(ts(residuals(mod_po2), frequency = 365, start = c(2012)),
 ```
 
 
-<<<<<<< HEAD
+
 ## **ECM y R2 para el modelo Poisson**
 
 Al agregar la variable dummy al modelo se consigue mejorar el $R2$ de validación, sim embargo se baja en un $2\%$ el $R^2$ de entreno. además, la nueva variable logra disminuir el ratio $Min\{R^2_{train}/R^2_{Validation}\}$.
 
-=======
+
 train %>% select(Units) %>% 
   mutate(Predict = fit, data = "train") %>% 
   rbind(test %>% 
@@ -670,7 +651,7 @@ train %>% select(Units) %>%
   geom_abline(intercept = 0) +
   ggtitle("Prediccion vs Real (mod Poisson con dummy)") +
   labs -> p3
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
 
 ```{r}
 
@@ -705,10 +686,6 @@ Se usará la función `randomForest::randomForest()`. Esta funcion tiene varios 
 * `node_size`
 * `sampe_size`
 
-<<<<<<< HEAD
-=======
-Se ajustará un modelo a los residuales del modelo Poisson. 
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
 
 ```{r}
 
@@ -843,18 +820,18 @@ prediccion_2018 %>% mutate(Data = "Test") %>%
 
 # **Referencias**
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
+
+
 - Registro Único Nacional de Tránsito.(2009 - 2021). https://www.runt.com.co/Registros-runt
 - Anónimo. (2015-2020). https://calendariohispanohablante.com/2012/calendario-colombia-2012.html.
 - Anónimo. www.futbolred.com/futbol-colombiano/liga-aguila/tablas-historicas-del-futbol-colombiano-62384
 - https://rpubs.com/duvan/InscipcionesRUNTTAE
-<<<<<<< HEAD
-=======
 
->>>>>>> 302a699c244ff8d490efd5b40969f8d6f7e068f5
+
+
+
 
 
 
