@@ -1,0 +1,19 @@
+Entendimiento de las carpetas y archivos del repositorio. 
+
+
+En cada una de las carpetas se encuentran lo siguiente:
+
+- AppShiny:
+	Todos los archivos relacionados a la aplicación 
+
+- Barrios de Medellín:
+	Archivos correspondientes para la elaboración del mapa de la ciudad de Medellín. 
+
+- datos:
+	Datos que se usaron para el desarrollo del modelo. 
+
+- Modelos diarios. 
+	Archivos con extensión .rds donde están guardados los modelos para cada uno de los tipos de accidentes. 
+
+- Scripts:
+	Scripts para el preprocesamiento, creación de modelos e informe técnico. 
