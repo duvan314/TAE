@@ -20,7 +20,7 @@ str(datos)
 
 # datos especiales --------------------------------------------------------
 
-FESTIVOS <- read.csv("../datos/FESTIVOS.csv")
+FESTIVOS <- read.csv("../datos/FESTIVOS.csv", encoding = "latin")
 FESTIVOS <-  FESTIVOS%>% mutate(FESTIVO = 1)
 FESTIVOS$FECHA <- dmy(FESTIVOS$FECHA)
 
