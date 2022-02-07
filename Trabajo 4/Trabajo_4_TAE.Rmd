@@ -1,0 +1,205 @@
+---
+itle: "Arte generativo"
+date: "7/02/2022"
+author: 
+
+- "David Santiago Espindola"
+- "Duvan Camilo Manrique"
+- "Jeison Durango"
+- "Daniela vasco"
+- "Valentina Agudelo"
+
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+
+```{python}
+%%capture
+!pip install samila
+
+import matplotlib.pyplot as plt
+from samila import GenerativeImage, Projection
+
+from random import uniform
+from math import pi, cosh, sinh, log, sin, cos, tanh
+from mpmath import coth, csch, sech
+from numpy.random import normal
+```
+
+## **Dos lunas**
+
+$f_{1}=normal()*x$
+
+$f_{2}=tanh(y)$
+
+```{python}
+def f1(x, y):
+  result = normal()*x
+  return result
+
+def f2(x, y):
+  result = tanh(y)
+  return result
+
+g = GenerativeImage(f1, f2)
+g.generate(step=0.005)
+g.plot(color='violet', bgcolor='black', projection=Projection.LAMBERT)
+plt.show()
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/twoMoons.png?raw=true)
+
+## **Solar Eclipse:**
+
+$f_{1}=normal()*x+y^{2}$
+
+$f_{2}=tanh(y) -coth(x^{3})$
+
+```{python}
+def f1(x, y):
+  result = normal()*x + y**2
+  return result
+
+def f2(x, y):
+  result = tanh(y) - coth(x**3)
+  return result
+
+g = GenerativeImage(f1, f2)
+g.generate(step=0.005)
+g.plot(color='gold', bgcolor='darkslategray', projection=Projection.POLAR)
+plt.show()
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/solarEcplipse.png?raw=true)
+
+## **Eye of the sun, angry volcano:**
+
+$f_{1}=log\left|\frac{cosh(y^{2})}{sin(x^{3}+y^{2})} \right|*y^{4}-2^{x}$
+
+$f_{2}=sin(x*y)*x^{3}+\left|x-y \right|$
+
+```{python}
+def f1(x, y):
+  result = log(abs(cosh(y**2)/sin(x**3 + y**2)))*y**4 - 2**x
+  return result
+
+def f2(x, y):
+  result = sin(x*y)*x**3 + abs(x-y)
+  return result
+
+g = GenerativeImage(f1, f2)
+g.generate(step=0.005)
+g.plot(color='darkorange', bgcolor='darkblue', projection=Projection.POLAR)
+plt.show()
+
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/eyeOfTheSun.png?raw=true)
+
+```{python}
+g.plot(color='red', bgcolor='black', projection=Projection.RECTILINEAR)
+plt.show()
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/angryVolcano.png?raw=true)
+
+## **Golden coat:**
+
+$f_{1}=log\left|x^{2}+y^{3}+tanh(x-y) \right|$
+
+$f_{2}=log\left|uniform(-1,1)*(\sqrt[3]{sin(x-y)}+uniform(-1,1)*\sqrt[3]{cos(x^{2}-y^{2})}) \right|$
+
+```{python}
+def f1(x, y):
+  result = log(abs(x**2 + y**3 + tanh(x-y)))
+  return result
+
+def f2(x, y):
+  result = log(abs(uniform(-1,1)*(sin(x-y)**(1/3) + uniform(-1,1)*(cos(x**2 - y**2))**(1/3))))
+  return result
+
+g = GenerativeImage(f1, f2)
+g.generate(step=0.005)
+g.plot(color='yellow', bgcolor='indigo', projection=Projection.LAMBERT)
+plt.show()
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/goldenCoat%20(1).png?raw=true)
+
+## **Library(aRtsy)**
+
+```{r}
+devtools::install_github("koenderks/aRtsy")
+library(aRtsy)
+```
+
+Por medio de esta libreria se proporciona algoritmo para crear obras de artes en el lenguaje
+"ggplot2" que incorporan algun tipo de aleatoridad. Cada algoritmo se implementa  en una funcion separada con su propio conjunto de parametros que se pueden modificar.
+
+colors=una cadena que especifica el color utilizado para la obra de arte.
+
+n=un entero positivo que especifica el número de puntos de datos aleatorios que se van a generar.
+
+resolution=resolución de la obra de arte en píxeles por fila/columna. Aumentar la resolución aumenta la calidad de la obra de arte, pero también aumenta exponencialmente el tiempo de cálculo.
+
+La coleccion supervisada es aquella en que se señala al algoritmo, cuantas clases generar, y se toman muestras o áreas de entrenamiento en la imagen, para cada clase de forma que se toma una muestra representativa de cada una;con las áreas de entrenamiento, el algoritmo agrupa los pixeles por su similitud espectral.
+
+## **Random Forest**
+
+Esta obra de arte está inspirada en un método de aprendizaje supervisado llamado bosque aleatorio. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles.
+
+```{r}
+canvas_forest(colors = colorPalette("dark2"),n=3000,resolution = 1000)
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot07.png?raw=true)
+
+## **Vecinos mas cercanos variable respuesta continua**
+
+Esta obra de arte está inspirada en un método de aprendizaje supervisado llamado k-vecinos más cercanos. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles. En resumen, el algoritmo de k-vecinos más cercanos calcula la distancia de cada píxel en el lienzo a cada punto de datos generado aleatoriamente y le asigna el color del valor de ese punto de datos.
+
+```{r}
+canvas_gemstone(colors = colorPalette("lava"),n=2000,resolution = 1000)
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot01.png?raw=true)
+
+## **Vecinos mas cercanos variable respuesta categorica**
+
+Esta obra de arte también usa un método de k vecinos más cercanos,pero en lugar de una variable de respuesta continua, se usa una categórica, lo que lo convierte en un problema de clasificación. Si considera menos vecinos,la obra de arte se ve como un mosaico, mientras que los valores más altos hacen que la obra de arte se vea más suave.
+
+```{r}
+canvas_mosaic(colors = colorPalette("lava"),n=2000,resolution = 1000)
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot02.png?raw=true)
+
+## **Máquina de soporte vectorial**
+
+Esta obra de arte está inspirada en un método de aprendizaje automático supervisado llamado máquinas de vectores de soporte. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles.
+
+```{r}
+canvas_blacklight(colors = colorPalette("random",n=100))
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot05.png?raw=true)
+
+## **Funcion gamma**
+
+En este algoritmo, la posición de cada punto individual se calcula mediante una fórmula que tiene parámetros aleatorios. En esta obra se suministra una funcion gamma.
+
+```{r}
+my_formula1 <- list(
+  x = quote(x_i^2-rgamma(50,2,3)*y_i^2),
+  y = quote(rgamma(50,2,3) * y_i^2 - x_i^2)
+)
+canvas_function(colors = colorPalette("neon2"), background = "black", by = 0.01,
+                polar = TRUE, formula = my_formula1)
+```
+
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot03.png?raw=true)
