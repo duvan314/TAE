@@ -1,6 +1,6 @@
 ---
-itle: "Arte generativo"
-date: "7/02/2022"
+title: "Arte generativo"
+date: "8/02/2022"
 author: 
 
 - "David Santiago Espindola"
@@ -18,10 +18,19 @@ knitr::opts_chunk$set(eval = FALSE)
 ```
 
 
+
+## **Librería Samila**
+
+Se usará el paquete [samila](https://github.com/sepandhaghighi/samila), desarrollado por Sepand Haghighi, para la creación y visualización de arte generativo. La clase ***GenerativeImage*** crea el objeto a partir de dos funciones que recibe como parámetros, dichas funciones están definidas para todo X y Y dentro de los rangos -π y π, transformando todo ese espacio bidimencional en una nueva obra de arte. Una vez definido el objeto, la imagen se genera con la función ***generate()***, donde el parámetro ***step*** determina la cantidad de puntos que se evaluarán. Finalmente, la imagen puede visualizarse usando la función ***plot()***, donde se especifican los colores con los que se representará el objeto y el tipo de proyección (coordenadas cartesianas, polares, de Lambert, entre otras), lo que cambia drásticamente la forma en la que se observa el resultado obtenido.
+
+Las funciones usadas para generar cada imágen se definieron de manare arbitraria. En algunas se usan números aleatóros que sigen distribuciones normales (función ***normal()***) o uniformes (función ***uniform()***), lo que da como resultado imágenes prácticamente imposibles de replicar.
+
 ```{python}
 %%capture
 !pip install samila
+```
 
+```{python}
 import matplotlib.pyplot as plt
 from samila import GenerativeImage, Projection
 
@@ -54,7 +63,7 @@ plt.show()
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/twoMoons.png?raw=true)
 
-## **Solar Eclipse:**
+## **Solar Eclipse**
 
 $f_{1}=normal()*x+y^{2}$
 
@@ -77,7 +86,7 @@ plt.show()
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/solarEcplipse.png?raw=true)
 
-## **Eye of the sun, angry volcano:**
+## **Ojo del sol**
 
 $f_{1}=log\left|\frac{cosh(y^{2})}{sin(x^{3}+y^{2})} \right|*y^{4}-2^{x}$
 
@@ -101,6 +110,8 @@ plt.show()
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/eyeOfTheSun.png?raw=true)
 
+## **Volcán enojado**
+
 ```{python}
 g.plot(color='red', bgcolor='black', projection=Projection.RECTILINEAR)
 plt.show()
@@ -108,7 +119,7 @@ plt.show()
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/angryVolcano.png?raw=true)
 
-## **Golden coat:**
+## **Tormenta de Oro**
 
 $f_{1}=log\left|x^{2}+y^{3}+tanh(x-y) \right|$
 
@@ -131,14 +142,14 @@ plt.show()
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/goldenCoat%20(1).png?raw=true)
 
-## **Library(aRtsy)**
+## **Librería aRtsy**
 
 ```{r}
 devtools::install_github("koenderks/aRtsy")
 library(aRtsy)
 ```
 
-Por medio de esta libreria se proporciona algoritmo para crear obras de artes en el lenguaje
+[2] Por medio de esta libreria se proporciona algoritmo para crear obras de artes en el lenguaje
 "ggplot2" que incorporan algun tipo de aleatoridad. Cada algoritmo se implementa  en una funcion separada con su propio conjunto de parametros que se pueden modificar.
 
 colors=una cadena que especifica el color utilizado para la obra de arte.
@@ -149,9 +160,9 @@ resolution=resolución de la obra de arte en píxeles por fila/columna. Aumentar
 
 La coleccion supervisada es aquella en que se señala al algoritmo, cuantas clases generar, y se toman muestras o áreas de entrenamiento en la imagen, para cada clase de forma que se toma una muestra representativa de cada una;con las áreas de entrenamiento, el algoritmo agrupa los pixeles por su similitud espectral.
 
-## **Random Forest**
+## **Bosque Antártico**
 
-Esta obra de arte está inspirada en un método de aprendizaje supervisado llamado bosque aleatorio. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles.
+[2] Esta obra de arte está inspirada en un método de aprendizaje supervisado llamado bosque aleatorio. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles.
 
 ```{r}
 canvas_forest(colors = colorPalette("dark2"),n=3000,resolution = 1000)
@@ -159,9 +170,9 @@ canvas_forest(colors = colorPalette("dark2"),n=3000,resolution = 1000)
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot07.png?raw=true)
 
-## **Vecinos mas cercanos variable respuesta continua**
+## **Magma de Nyiragongo**
 
-Esta obra de arte está inspirada en un método de aprendizaje supervisado llamado k-vecinos más cercanos. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles. En resumen, el algoritmo de k-vecinos más cercanos calcula la distancia de cada píxel en el lienzo a cada punto de datos generado aleatoriamente y le asigna el color del valor de ese punto de datos.
+[2] Esta obra de arte está inspirada en un método de aprendizaje supervisado llamado k-vecinos más cercanos. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles. En resumen, el algoritmo de k-vecinos más cercanos calcula la distancia de cada píxel en el lienzo a cada punto de datos generado aleatoriamente y le asigna el color del valor de ese punto de datos.
 
 ```{r}
 canvas_gemstone(colors = colorPalette("lava"),n=2000,resolution = 1000)
@@ -169,9 +180,9 @@ canvas_gemstone(colors = colorPalette("lava"),n=2000,resolution = 1000)
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot01.png?raw=true)
 
-## **Vecinos mas cercanos variable respuesta categorica**
+## **Caleidoscopio de otoño**
 
-Esta obra de arte también usa un método de k vecinos más cercanos,pero en lugar de una variable de respuesta continua, se usa una categórica, lo que lo convierte en un problema de clasificación. Si considera menos vecinos,la obra de arte se ve como un mosaico, mientras que los valores más altos hacen que la obra de arte se vea más suave.
+[2] Esta obra de arte también usa un método de k vecinos más cercanos,pero en lugar de una variable de respuesta continua, se usa una categórica, lo que lo convierte en un problema de clasificación. Si considera menos vecinos,la obra de arte se ve como un mosaico, mientras que los valores más altos hacen que la obra de arte se vea más suave.
 
 ```{r}
 canvas_mosaic(colors = colorPalette("lava"),n=2000,resolution = 1000)
@@ -179,9 +190,9 @@ canvas_mosaic(colors = colorPalette("lava"),n=2000,resolution = 1000)
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot02.png?raw=true)
 
-## **Máquina de soporte vectorial**
+## **Quietud**
 
-Esta obra de arte está inspirada en un método de aprendizaje automático supervisado llamado máquinas de vectores de soporte. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles.
+[2] Esta obra de arte está inspirada en un método de aprendizaje automático supervisado llamado máquinas de vectores de soporte. Aplica el principio descrito anteriormente utilizando una variable de respuesta continua para rellenar el color de los píxeles.
 
 ```{r}
 canvas_blacklight(colors = colorPalette("random",n=100))
@@ -189,9 +200,9 @@ canvas_blacklight(colors = colorPalette("random",n=100))
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot05.png?raw=true)
 
-## **Funcion gamma**
+## **Espiral Fénix**
 
-En este algoritmo, la posición de cada punto individual se calcula mediante una fórmula que tiene parámetros aleatorios. En esta obra se suministra una funcion gamma.
+[2] En este algoritmo, la posición de cada punto individual se calcula mediante una fórmula que tiene parámetros aleatorios. En esta obra se suministra una funcion gamma.
 
 ```{r}
 my_formula1 <- list(
@@ -203,3 +214,8 @@ canvas_function(colors = colorPalette("neon2"), background = "black", by = 0.01,
 ```
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot03.png?raw=true)
+
+## **Referencias**
+
+- [1] Haghighi, S. (2022). Samila (0.4) [Software]. https://github.com/sepandhaghighi/samila
+- [2] Koen Derks. (2021). aRtsy: Generative Art with R and ggplot2. https://koenderks.github.io/aRtsy/index.html.
