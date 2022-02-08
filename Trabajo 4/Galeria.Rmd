@@ -1,0 +1,133 @@
+---
+title: "Galería - No Name Yet"
+author: 
+
+ "David Santiago Espíndola"
+ "Duvan Camilo Manrique"
+ "Jeison Durango"
+ "Daniela Vasco"
+ "Valentina Agudelo"
+ " "
+ "TÉCNICAS DE APRENDIZAJE ESTADÍSTICO"
+ "2022"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Bienvenid@
+
+> Las imágenes que se encuentran a continuación fueron generadas a partir de funciones matemáticas
+
+## Dos lunas
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/twoMoons.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> > En este espacio vamos a escribir la descripción que continúa aquí
+
+
+## Solar Eclipse
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/solarEcplipse.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Eye of the sun
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/eyeOfTheSun.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Angry volcano
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/angryVolcano.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Golden coat
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/goldenCoat%20(1).png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Bosque antártico
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot07.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Magma de Nyiragongo
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot01.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Caleidoscopio de otoño
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot02.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Quietud
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot05.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
+## Espiral fénix
+
+<div>
+<p style = 'text-align:center;'>
+<img src="https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot03.png?raw=true" alt="Image not found" width="400px">
+</p>
+</div>
+
+> En este espacio vamos a escribir la descripción
+> que continúa aquí
+
