@@ -59,7 +59,7 @@ g.plot(color='violet', bgcolor='black', projection=Projection.LAMBERT)
 plt.show()
 ```
 
-![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/twoMoons.png?raw=true)
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/menorResolucion/twoMoons.png?raw=true)
 
 ## **Eclipse Solar**
 
@@ -82,7 +82,7 @@ g.plot(color='gold', bgcolor='darkslategray', projection=Projection.POLAR)
 plt.show()
 ```
 
-![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/solarEcplipse.png?raw=true)
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/menorResolucion/solarEcplipse.png?raw=true)
 
 ## **Ojo del Sol**
 
@@ -106,7 +106,7 @@ plt.show()
 
 ```
 
-![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/eyeOfTheSun.png?raw=true)
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/menorResolucion/eyeOfTheSun.png?raw=true)
 
 ## **Volcán Enojado**
 
@@ -115,7 +115,7 @@ g.plot(color='red', bgcolor='black', projection=Projection.RECTILINEAR)
 plt.show()
 ```
 
-![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/angryVolcano.png?raw=true)
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/menorResolucion/angryVolcano.png?raw=true)
 
 ## **Tormenta de Oro**
 
@@ -138,7 +138,7 @@ g.plot(color='yellow', bgcolor='indigo', projection=Projection.LAMBERT)
 plt.show()
 ```
 
-![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/goldenCoat%20(1).png?raw=true)
+![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/menorResolucion/goldenCoat%2520(1).png?raw=true)
 
 ## **Librería aRtsy**
 
@@ -211,6 +211,9 @@ canvas_function(colors = colorPalette("neon2"), background = "black", by = 0.01,
 ```
 
 ![](https://github.com/duvan314/TAE/blob/main/Trabajo%204/Im%C3%A1genes/Rplot03.png?raw=true)
+
+## **Repositorio**
+- https://github.com/duvan314/TAE/tree/main/Trabajo%204
 
 ## **Referencias**
 - [1] Haghighi, S. (2022). Samila (0.4) [Software]. https://github.com/sepandhaghighi/samila
